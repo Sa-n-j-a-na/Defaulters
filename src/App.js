@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import './App.css';
 
 function App() {
@@ -21,7 +21,7 @@ function App() {
       </div>
 
       <Routes>
-        <Route path="/login" element={<RedirectToLogin />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </Router>
   );
@@ -37,9 +37,27 @@ function RoleButton({ role }) {
   return <button onClick={redirectToLogin}>{role.toUpperCase()}</button>;
 }
 
-function RedirectToLogin() {
-  // Placeholder for redirect component (e.g., using React Router)
-  return null;
+function Login() {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const role = queryParams.get('role');
+
+  return (
+    <div className="login-container">
+      <h2>Login as {role.toUpperCase()}</h2>
+      <form className="login-form">
+        <div className="form-group">
+          <label htmlFor="username">Username:</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+        <div className="form-group">
+          <label htmlFor="password">Password:</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  );
 }
 
 export default App;
