@@ -7,7 +7,7 @@ const app = express();
 const port = 5000;
 
 const uri = "mongodb://127.0.0.1:27017";
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(uri);
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -23,7 +23,7 @@ app.post('/login', async (req, res) => {
         await client.connect();
         const database = client.db('defaulterTrackingSystem');
         const collection = database.collection('pt');
-
+        
         const query = { username: username, password: password };
         const user = await collection.findOne(query);
 
