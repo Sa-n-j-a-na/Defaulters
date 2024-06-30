@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
 import Login from './Login';
 
@@ -8,7 +8,14 @@ function App() {
     <Router>
       <div className="container">
         <header>
-          <h1>Velammal College of Engineering and Technology</h1>
+          <div className="heading-container">
+            <center>
+              <h1>VELAMMAL COLLEGE OF ENGINEERING AND TECHNOLOGY</h1>
+              <div className="rotate-image-container">
+                <img src="vcetLogo.jpg" alt="VCET Logo" />
+              </div>
+            </center>
+          </div>
           <h2>Defaulter Tracking System</h2>
         </header>
         <main>
