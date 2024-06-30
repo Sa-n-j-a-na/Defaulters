@@ -15,14 +15,14 @@ app.use(cors());
 app.post('/login', async (req, res) => {
     const { username, password, role } = req.body;
     console.log('Received role:', role); 
-    if (role !== 'pt-sir') {
+    if (!['pt-sir', 'hod'].includes(role)) {
         return res.status(403).json({ message: 'Access forbidden for this role' });
     }
 
     try {
         await client.connect();
         const database = client.db('defaulterTrackingSystem');
-        const collection = database.collection('pt');
+        const collection = database.collection(role);
 
         const query = { username: username, password: password };
         const user = await collection.findOne(query);
