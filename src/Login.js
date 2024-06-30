@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
+import './App.css';
 
 function Login() {
   const location = useLocation();
@@ -14,16 +15,24 @@ function Login() {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/login', { username, password, role });
-      setMessage(response.data.message);
-      // You can navigate to a different page or perform other actions here upon successful login
+      if (response && response.data) {
+        setMessage(response.data.message);
+        // Perform additional actions on successful login, e.g., redirect to another page
+      } else {
+        setMessage('Unexpected error occurred. Please try again.');
+      }
     } catch (error) {
-      setMessage(error.response.data.message);
+      if (error.response && error.response.data) {
+        setMessage(error.response.data.message);
+      } else {
+        setMessage('Server error. Please try again later.');
+      }
     }
   };
 
   return (
     <div className="login-container">
-      <h2>Login as {role.toUpperCase()}</h2>
+      <h2>Login as {role ? role.toUpperCase() : 'USER'}</h2>
       <form className="login-form" onSubmit={handleLogin}>
         <div className="form-group">
           <label htmlFor="username">Username:</label>
