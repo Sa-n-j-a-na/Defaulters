@@ -4,7 +4,7 @@ const { MongoClient } = require('mongodb');
 const cors = require('cors');
 
 const app = express();
-const port = 5000;
+const port = 5000; // Ensure this port is not in use by any other application
 
 const uri = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(uri);
@@ -14,21 +14,27 @@ app.use(cors());
 
 app.post('/login', async (req, res) => {
     const { username, password, role } = req.body;
-    console.log('Received role:', role); 
-    if (!['pt-sir', 'hod'].includes(role)) {
+    console.log('Received role:', role);
+
+    if (!['pt-sir', 'mentor', 'hod'].includes(role)) {
         return res.status(403).json({ message: 'Access forbidden for this role' });
     }
 
     try {
         await client.connect();
         const database = client.db('defaulterTrackingSystem');
-<<<<<<< HEAD
-        const collection = database.collection('pt');
         
-=======
-        const collection = database.collection(role);
+        let collection;
+        if (role === 'pt-sir') {
+            collection = database.collection('pt');
+        } else if (role === 'mentor') {
+            collection = database.collection('mentors');
+        } else if (role === 'hod') {
+            collection = database.collection('hod');
+        } else {
+            return res.status(403).json({ message: 'Access forbidden for this role' });
+        }
 
->>>>>>> b6a2438f4822cd3d4423e61baf46599ab1e5e8d3
         const query = { username: username, password: password };
         const user = await collection.findOne(query);
 
