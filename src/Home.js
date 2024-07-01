@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './App.css';
+import Login from './Login';
 
 function Home() {
+  const [selectedRole, setSelectedRole] = useState(null);
+
   return (
+    <div>
     <div className="container">
       <header>
         <div className="heading-container">
@@ -19,23 +23,23 @@ function Home() {
       <main>
         <h3>Select your role:</h3>
         <div className="role-buttons">
-          <RoleButton role="pt-sir" />
-          <RoleButton role="mentor" />
-          <RoleButton role="hod" />
+          <RoleButton role="pt-sir" setSelectedRole={setSelectedRole} />
+          <RoleButton role="mentor" setSelectedRole={setSelectedRole} />
+          <RoleButton role="hod" setSelectedRole={setSelectedRole} />
         </div>
+        
       </main>
     </div>
+    <div>
+          {selectedRole && <Login role={selectedRole} />}
+    </div>
+    </div>
+    
   );
 }
 
-function RoleButton({ role }) {
-  const navigate = useNavigate();
-
-  function redirectToLogin() {
-    navigate(`/login?role=${role}`);
-  }
-
-  return <button onClick={redirectToLogin}>{role.toUpperCase()}</button>;
+function RoleButton({ role, setSelectedRole }) {
+  return <button onClick={() => setSelectedRole(role)}>{role.toUpperCase()}</button>;
 }
 
 export default Home;

@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
 
-function Login() {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const role = queryParams.get('role');
+function Login({ role }) {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -17,7 +15,15 @@ function Login() {
       const response = await axios.post('http://localhost:5000/login', { username, password, role });
       if (response && response.data) {
         setMessage(response.data.message);
-        // Perform additional actions on successful login, e.g., redirect to another page
+        if (response.data.message === 'Login successful') {
+          if (role === 'pt-sir') {
+            navigate('/pt', { state: { username } });
+          } else if (role === 'hod') {
+            navigate('/hod', { state: { username } });
+          } else if (role === 'mentor') {
+            navigate('/mentor', { state: { username } });
+          }
+        }
       } else {
         setMessage('Unexpected error occurred. Please try again.');
       }
@@ -32,7 +38,7 @@ function Login() {
 
   return (
     <div className="login-container">
-      <h2>Login as {role ? role.toUpperCase() : 'USER'}</h2>
+      <h2>Login as {role.toUpperCase()}</h2>
       <form className="login-form" onSubmit={handleLogin}>
         <div className="form-group">
           <label htmlFor="username">Username:</label>

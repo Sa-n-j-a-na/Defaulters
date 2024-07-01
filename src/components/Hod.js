@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import './comp.css';
 
 function Hod() {
   const location = useLocation();

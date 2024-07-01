@@ -1,5 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import './comp.css';
+
 
 function Mentor() {
   const location = useLocation();
