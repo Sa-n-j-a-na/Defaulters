@@ -4,6 +4,7 @@ import Login from './Login';
 
 function Home() {
   const [selectedRole, setSelectedRole] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
     document.body.classList.add('home-body');
@@ -11,6 +12,16 @@ function Home() {
       document.body.classList.remove('home-body');
     };
   }, []);
+
+  const handleRoleClick = (role) => {
+    setSelectedRole(role);
+    setShowLogin(true);
+  };
+
+  const handleCancelLogin = () => {
+    setShowLogin(false);
+    setSelectedRole(null);
+  };
 
   return (
     <div>
@@ -29,15 +40,15 @@ function Home() {
         <main>
           <h3>Select your role:</h3>
           <div className="roleButtons">
-            <RoleButton role="pt-sir" setSelectedRole={setSelectedRole} />
-            <RoleButton role="mentor" setSelectedRole={setSelectedRole} />
-            <RoleButton role="hod" setSelectedRole={setSelectedRole} />
+            <RoleButton role="pe" setSelectedRole={handleRoleClick} />
+            <RoleButton role="mentor" setSelectedRole={handleRoleClick} />
+            <RoleButton role="hod" setSelectedRole={handleRoleClick} />
           </div>
         </main>
       </div>
-      <div>
-        {selectedRole && <Login key={selectedRole} role={selectedRole} />}
-      </div>
+
+      {/* Conditionally render Login component */}
+      {showLogin && <Login role={selectedRole} onCancel={handleCancelLogin} />}
     </div>
   );
 }

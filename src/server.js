@@ -15,8 +15,10 @@ app.use(cors());
 app.post('/login', async (req, res) => {
     const { username, password, role } = req.body;
     console.log('Received role:', role);
+    console.log('Received login request:', { username, role });
 
-    if (!['pt-sir', 'mentor', 'hod'].includes(role)) {
+    if (!['pe', 'mentor', 'hod'].includes(role)) {
+        console.log('Access forbidden for role:', role); // Logging the role that caused the issue
         return res.status(403).json({ message: 'Access forbidden for this role' });
     }
 
@@ -25,7 +27,7 @@ app.post('/login', async (req, res) => {
         const database = client.db('defaulterTrackingSystem');
         
         let collection;
-        if (role === 'pt-sir') {
+        if (role === 'pe') {
             collection = database.collection('pt');
         } else if (role === 'mentor') {
             collection = database.collection('mentors');
