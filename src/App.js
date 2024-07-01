@@ -19,7 +19,7 @@ function App() {
           <h2>Defaulter Tracking System</h2>
         </header>
         <main>
-          <p>Select your role:</p>
+          <h3>Select your role:</h3>
           <div className="role-buttons">
             <RoleButton role="pt-sir" />
             <RoleButton role="mentor" />
