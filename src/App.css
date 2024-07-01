@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Open+Sans:wght@400;600&display=swap');
 
 /* Global styles */
-body {
+body.home-body {
   font-family: 'Merriweather', serif;
   margin: 0;
   padding: 0;
-  background-image: url('WhatsApp\ Image\ 2024-06-30\ at\ 19.44.16_23017942.jpg'); /* Example background image */
-  background-size: cover; /* Make the background image cover the entire body */
-  background-position: center; /* Center the background image */
-  background-repeat: no-repeat; /* Prevent the background image from repeating */
+  background-image: url('WhatsApp\ Image\ 2024-06-30\ at\ 19.44.16_23017942.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .container {
@@ -27,7 +27,7 @@ header {
 
 header h1 {
   font-size: 40px;
-  color:  #333; /* Dark Yellow to Orange gradient */
+  color: #333;
   text-shadow: 1px 1px 2px #000;
   font-weight: bolder;
 }
@@ -37,14 +37,14 @@ header h2 {
   color: #333;
 }
 
-.rotate-image-container {
+.rotateImageContainer {
   margin: 20px 0;
   display: inline-block;
   width: 150px;
   height: 150px;
 }
 
-.rotate-image-container img {
+.rotateImageContainer img {
   width: 100%;
   height: auto;
   animation: rotateImage 5s linear infinite;
@@ -66,7 +66,7 @@ main {
   padding: 20px;
 }
 
-.role-buttons {
+.roleButtons {
   display: flex;
   justify-content: center;
   gap: 20px;
@@ -137,19 +137,4 @@ button:hover {
   padding: 12px 24px;
   border: 1px solid #ccc;
   border-radius: 4px 0 0 4px; /* Adjust border-radius to match button */
-}
-
-button {
-  padding: 12px 24px;
-  font-size: 18px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #0056b3;
 }

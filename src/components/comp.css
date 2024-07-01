@@ -1,9 +1,6 @@
-body {
+.compContainer {
   font-family: 'Merriweather', serif;
   margin: 0;
   padding: 0;
-  background-image: url('vcetbg.jpg'); /* Example background image */
-  background-size: cover; /* Make the background image cover the entire body */
-  background-position: center; /* Center the background image */
-  background-repeat: no-repeat; /* Prevent the background image from repeating */
+  background-color: bisque;
 }

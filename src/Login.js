@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
@@ -8,6 +8,13 @@ function Login({ role }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    // Reset form values when the role changes
+    setUsername('');
+    setPassword('');
+    setMessage('');
+  }, [role]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

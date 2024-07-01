@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import './comp.css';
+import styles from './comp.css';
 
 
 function Pt() {
@@ -8,7 +8,7 @@ function Pt() {
   const { username } = location.state;
 
   return (
-    <div>
+    <div className={styles.compContainer}>
       <h1>Welcome, {username} (PT-SIR)</h1>
     </div>
   );

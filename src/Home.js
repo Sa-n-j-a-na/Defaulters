@@ -1,40 +1,44 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import './App.css'; // Import styles
 import Login from './Login';
 
 function Home() {
   const [selectedRole, setSelectedRole] = useState(null);
 
+  useEffect(() => {
+    document.body.classList.add('home-body');
+    return () => {
+      document.body.classList.remove('home-body');
+    };
+  }, []);
+
   return (
     <div>
-    <div className="container">
-      <header>
-        <div className="heading-container">
-          <center>
-            <h1>VELAMMAL COLLEGE OF ENGINEERING AND TECHNOLOGY</h1>
-            <div className="rotate-image-container">
-              <img src="vcetLogo.jpg" alt="VCET Logo" />
-            </div>
-          </center>
-        </div>
-        <h2>Defaulter Tracking System</h2>
-      </header>
-      <main>
-        <h3>Select your role:</h3>
-        <div className="role-buttons">
-          <RoleButton role="pt-sir" setSelectedRole={setSelectedRole} />
-          <RoleButton role="mentor" setSelectedRole={setSelectedRole} />
-          <RoleButton role="hod" setSelectedRole={setSelectedRole} />
-        </div>
-        
-      </main>
+      <div className="container">
+        <header>
+          <div className="headingContainer">
+            <center>
+              <h1>VELAMMAL COLLEGE OF ENGINEERING AND TECHNOLOGY</h1>
+              <div className="rotateImageContainer">
+                <img src="vcetLogo.jpg" alt="VCET Logo" />
+              </div>
+            </center>
+          </div>
+          <h2>Defaulter Tracking System</h2>
+        </header>
+        <main>
+          <h3>Select your role:</h3>
+          <div className="roleButtons">
+            <RoleButton role="pt-sir" setSelectedRole={setSelectedRole} />
+            <RoleButton role="mentor" setSelectedRole={setSelectedRole} />
+            <RoleButton role="hod" setSelectedRole={setSelectedRole} />
+          </div>
+        </main>
+      </div>
+      <div>
+        {selectedRole && <Login key={selectedRole} role={selectedRole} />}
+      </div>
     </div>
-    <div>
-          {selectedRole && <Login role={selectedRole} />}
-    </div>
-    </div>
-    
   );
 }
 
