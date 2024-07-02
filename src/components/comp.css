@@ -167,7 +167,7 @@
 }
 
 /* Button styling */
-.login-buttons {
+.com-login-buttons {
   display: flex;
   gap: 10px;
   justify-content: center; /* Center-align buttons */
@@ -175,7 +175,7 @@
   margin-top: 20px; /* Add some space above the buttons */
 }
 
-.login-buttons button {
+.com-login-buttons button {
   background: linear-gradient(to bottom, #66ccff 0%, #0066cc 100%);
   border: none;
   color: white;
@@ -187,7 +187,7 @@
   height: 40px;
 }
 
-.login-buttons button:hover {
+.com-login-buttons button:hover {
   background: linear-gradient(to bottom, #0066cc 0%, #66ccff 100%);
 }
 

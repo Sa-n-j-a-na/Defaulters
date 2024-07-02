@@ -4,13 +4,15 @@ import './comp.css';
 
 function Pt() {
   const location = useLocation();
-  const { username } = location.state || { username: 'PT User' };
+ 
 
   const [isDefaultersExpanded, setIsDefaultersExpanded] = useState(false);
   const [currentView, setCurrentView] = useState('');
   const [mentors, setMentors] = useState([]);
   const [studentName, setStudentName] = useState('');
-  const [formLabel, setFormLabel] = useState('Observation'); // Default label
+  const [formLabel, setFormLabel] = useState('Observation');
+  const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
 
   const toggleDefaulters = () => {
     setIsDefaultersExpanded(!isDefaultersExpanded);
@@ -19,34 +21,36 @@ function Pt() {
   const handleMenuClick = (view) => {
     setCurrentView(view);
     if (view === 'latecomers') {
-      setFormLabel('Time In'); // Change label to Time In for latecomers
+      setFormLabel('Time In');
     } else {
-      setFormLabel('Observation'); // Default to Observation for dresscode and discipline
+      setFormLabel('Observation');
     }
   };
 
   const handleRollNumberChange = async (e) => {
     const rollNumber = e.target.value;
-    // Fetch the student name based on roll number from the database
-    // This is a placeholder, replace with actual database call
     const fetchedStudentName = await fetchStudentNameFromDatabase(rollNumber);
     setStudentName(fetchedStudentName);
   };
 
-  const fetchMentors = async () => {
-    // Fetch mentors from the database
-    // This is a placeholder, replace with actual database call
-    const fetchedMentors = await fetchMentorsFromDatabase();
-    setMentors(fetchedMentors);
+  const fetchMentors = async (department, year) => {
+    try {
+      const response = await fetch(`http://localhost:5000/mentors?dept=${department}&year=${year}`);
+      const data = await response.json();
+      setMentors(data);
+    } catch (error) {
+      console.error('Error fetching mentors:', error);
+    }
   };
 
   useEffect(() => {
-    fetchMentors();
-  }, []);
+    if (selectedDepartment && selectedYear) {
+      fetchMentors(selectedDepartment, selectedYear);
+    }
+  }, [selectedDepartment, selectedYear]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission here
     console.log({
       academicYear: e.target.academicYear.value,
       semester: e.target.semester.value,
@@ -70,7 +74,7 @@ function Pt() {
       <div className="contentWrapper">
         <div className="sidebar">
           <h2>Menus</h2>
-          <a href="/">Home</a>
+          <a href="/pt">Home</a>
           <div className="defaultersEntry">
             <a href="#" onClick={toggleDefaulters}>
               Defaulters Entry <span>{isDefaultersExpanded ? '▲' : '▼'}</span>
@@ -87,7 +91,7 @@ function Pt() {
         <div className="mainContent">
           {currentView === '' && (
             <div className="welcome">
-              Welcome "{username}" of PT Department
+              Welcome PE Department
             </div>
           )}
           {(currentView === 'dresscode' || currentView === 'latecomers') && (
@@ -110,31 +114,33 @@ function Pt() {
               </div>
               <div className="formGroup">
                 <label htmlFor="department">Department:</label>
-                <select id="department" name="department">
-                  <option value="cse">CSE</option>
-                  <option value="ece">ECE</option>
-                  <option value="eee">EEE</option>
-                  <option value="it">IT</option>
-                  <option value="aids">AIDS</option>
-                  <option value="civil">Civil</option>
-                  <option value="mech">Mech</option>
+                <select id="department" name="department" onChange={(e) => setSelectedDepartment(e.target.value)}>
+                  <option value="">Select Department</option>
+                  <option value="CSE">CSE</option>
+                  <option value="ECE">ECE</option>
+                  <option value="EEE">EEE</option>
+                  <option value="IT">IT</option>
+                  <option value="AIDS">AIDS</option>
+                  <option value="Civil">Civil</option>
+                  <option value="Mech">Mech</option>
+                </select>
+              </div>
+              <div className="formGroup">
+                <label htmlFor="year">Year:</label>
+                <select id="year" name="year" onChange={(e) => setSelectedYear(e.target.value)}>
+                  <option value="">Select Year</option>
+                  <option value="I">I</option>
+                  <option value="II">II</option>
+                  <option value="III">III</option>
+                  <option value="IV">IV</option>
                 </select>
               </div>
               <div className="formGroup">
                 <label htmlFor="mentor">Mentor:</label>
                 <select id="mentor" name="mentor">
                   {mentors.map((mentor) => (
-                    <option key={mentor.id} value={mentor.name}>{mentor.name}</option>
+                    <option key={mentor._id} value={mentor.name}>{mentor.name}</option>
                   ))}
-                </select>
-              </div>
-              <div className="formGroup">
-                <label htmlFor="year">Year:</label>
-                <select id="year" name="year">
-                  <option value="I">I</option>
-                  <option value="II">II</option>
-                  <option value="III">III</option>
-                  <option value="IV">IV</option>
                 </select>
               </div>
               {currentView === 'dresscode' && (
@@ -157,7 +163,7 @@ function Pt() {
                 <label htmlFor="studentName">Student Name:</label>
                 <input type="text" id="studentName" name="studentName" value={studentName} readOnly />
               </div>
-              <div className="login-buttons">
+              <div className="com-login-buttons">
                 <button type="button">Add</button>
                 <button type="submit">Submit</button>
               </div>
@@ -169,21 +175,15 @@ function Pt() {
   );
 }
 
-// Placeholder function for fetching student name based on roll number
 async function fetchStudentNameFromDatabase(rollNumber) {
   // Replace with actual database call
-  return 'John Doe';
-}
-
-// Placeholder function for fetching mentors from the database
-async function fetchMentorsFromDatabase() {
-  // Replace with actual database call
-  return [
-    { id: 1, name: 'Mentor 1' },
-    { id: 2, name: 'Mentor 2' },
-    { id: 3, name: 'Mentor 3' },
-  ];
+  // For now, return a placeholder name based on roll number
+  const mockDatabase = {
+    '123': 'John Doe',
+    '456': 'Jane Smith',
+    '789': 'Alice Johnson',
+  };
+  return mockDatabase[rollNumber] || 'Unknown Student';
 }
 
 export default Pt;
-

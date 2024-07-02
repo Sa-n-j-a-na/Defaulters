@@ -53,6 +53,26 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.get('/mentors', async (req, res) => {
+    const { department, year } = req.query;
+
+    try {
+        await client.connect();
+        const database = client.db('defaulterTrackingSystem');
+        const mentors = database.collection('mentor_db');
+        const query = { department, year };
+        const mentorsList = await mentors.find(query).toArray();
+
+        res.status(200).json(mentorsList);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ message: 'Internal server error' });
+    } finally {
+        await client.close();
+    }
+});
+
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+    console.log('Server is running on http://localhost:5000');
+
 });
