@@ -87,7 +87,6 @@
   text-decoration: none;
   padding: 10px 20px;
   margin-bottom: 20px;
-  border-left: 10px;
   border-left: 5px solid #FFCC00; /* Left border for links */
 }
 
@@ -126,4 +125,18 @@
   font-weight: bold; /* Bold font weight */
   text-align: center; /* Center align the text */
   margin-top: 10px; /* Increased top margin */
+}
+
+/* Additional styles for collapsible Defaulters Entry section */
+.defaultersEntry ul {
+  list-style-type: none;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.defaultersEntry ul li {
+  margin-top: 5px;
+}
+.defaultersEntry a span {
+  margin-left: 30px; /* Add margin to the left of the arrow */
 }
