@@ -1,6 +1,129 @@
+/* src/components/comp.css */
+
 .compContainer {
-  font-family: 'Merriweather', serif;
+  width: 100%;
+  height: 100vh;
   margin: 0;
   padding: 0;
-  background-color: bisque;
+  text-align: center;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.compHeader {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #002952;
+  color: white;
+  padding: 20px; 
+  z-index: 1000;
+  box-shadow: 0px 10px 10px -10px rgba(0, 0, 0, 0.75);
+}
+
+.compHeader img {
+  width: 70px; /* Increased logo size */
+  height: 70px;
+}
+
+.compHeader h1 {
+  flex-grow: 1;
+  text-align: center;
+  margin: 0;
+  font-size: 24px;
+}
+
+.compHeader a {
+  color: white;
+  text-decoration: none;
+  font-size: 20px;
+  padding: 8px 15px;
+  background: linear-gradient(to bottom, #ff6e6e 0%, #cc0000 100%);
+  border-radius: 50px; /* Rounded corners */
+  border: 1px solid #cc0000; /* Border color to match the button */
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: inline-block;
+  text-align: center;
+  box-shadow: 0px 10px 14px -7px #990000; /* Adjusted shadow color to match the button */
+  text-shadow: 0px 1px 0px #990000; /* Adjusted text shadow color to match the button */
+}
+
+.compHeader a:hover {
+  background: linear-gradient(to bottom, #cc0000 0%, #ff6e6e 100%);
+}
+
+.contentWrapper {
+  display: flex;
+  flex-grow: 1;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #003366;
+  color: white;
+  padding: 20px;
+  text-align: left;
+  margin: 20px;
+  border-radius: 20px;
+}
+
+.sidebar h2 {
+  color: white;
+  font-size: 20px;
+  margin-bottom: 20px;
+  text-align: center; /* Center align the heading */
+  background-color: #005580; /* Background color for the heading */
+  padding: 10px 0; /* Padding for the heading */
+  border-radius: 10px; 
+}
+
+.sidebar a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+  border-left: 10px;
+  border-left: 5px solid #FFCC00; /* Left border for links */
+}
+
+.sidebar a:hover {
+  background-color: #005580; /* Hover background color */
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px); /* Move the link up by 2 pixels */
+  transition: transform 0.2s ease;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.mainContent {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #f0f0f0;
+  margin: 20px;
+  border-radius: 20px;
+}
+
+.menu {
+  background-color: #FFCC00;
+  padding: 10px;
+  text-align: left;
+}
+
+.menu a {
+  margin-right: 20px;
+  color: #003366;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.welcome {
+  font-size: xx-large; /* Increased font size */
+  font-weight: bold; /* Bold font weight */
+  text-align: center; /* Center align the text */
+  margin-top: 10px; /* Increased top margin */
 }
