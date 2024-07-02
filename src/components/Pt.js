@@ -10,10 +10,7 @@ function Pt() {
   const [currentView, setCurrentView] = useState('');
   const [mentors, setMentors] = useState([]);
   const [studentName, setStudentName] = useState('');
-<<<<<<< HEAD
   const [formLabel, setFormLabel] = useState('Observation'); // Default label
-=======
->>>>>>> 825cb5a179fb9239b0ba15df628166e482b4d2a8
 
   const toggleDefaulters = () => {
     setIsDefaultersExpanded(!isDefaultersExpanded);
@@ -21,14 +18,11 @@ function Pt() {
 
   const handleMenuClick = (view) => {
     setCurrentView(view);
-<<<<<<< HEAD
     if (view === 'latecomers') {
       setFormLabel('Time In'); // Change label to Time In for latecomers
     } else {
       setFormLabel('Observation'); // Default to Observation for dresscode and discipline
     }
-=======
->>>>>>> 825cb5a179fb9239b0ba15df628166e482b4d2a8
   };
 
   const handleRollNumberChange = async (e) => {
@@ -50,7 +44,6 @@ function Pt() {
     fetchMentors();
   }, []);
 
-<<<<<<< HEAD
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle form submission here
@@ -67,8 +60,6 @@ function Pt() {
     // Reset form fields or perform other actions as needed
   };
 
-=======
->>>>>>> 825cb5a179fb9239b0ba15df628166e482b4d2a8
   return (
     <div className="compContainer">
       <div className="compHeader">
@@ -94,7 +85,6 @@ function Pt() {
           <a href="/attendance">Generate Report</a>
         </div>
         <div className="mainContent">
-<<<<<<< HEAD
           {currentView === '' && (
             <div className="welcome">
               Welcome "{username}" of PT Department
@@ -173,80 +163,6 @@ function Pt() {
               </div>
             </form>
           )}
-=======
-          <div className="welcome">
-            Welcome "{username}" of PT Department
-          </div>
-          <div>
-            {currentView === 'dresscode' && (
-              <form>
-                <div>
-                  <label htmlFor="academicYear">Academic Year:</label>
-                  <select id="academicYear" name="academicYear">
-                    <option value="2024-2028">2024-2028</option>
-                    <option value="2023-2027">2023-2027</option>
-                    <option value="2022-2026">2022-2026</option>
-                    <option value="2021-2025">2021-2025</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="semester">Semester:</label>
-                  <select id="semester" name="semester">
-                    <option value="Odd">Odd</option>
-                    <option value="Even">Even</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="department">Department:</label>
-                  <select id="department" name="department">
-                    <option value="cse">CSE</option>
-                    <option value="ece">ECE</option>
-                    <option value="eee">EEE</option>
-                    <option value="it">IT</option>
-                    <option value="aids">AIDS</option>
-                    <option value="civil">Civil</option>
-                    <option value="mech">Mech</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="mentor">Mentor:</label>
-                  <select id="mentor" name="mentor">
-                    {mentors.map((mentor) => (
-                      <option key={mentor.id} value={mentor.name}>{mentor.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="year">Year:</label>
-                  <select id="year" name="year">
-                    <option value="I">I</option>
-                    <option value="II">II</option>
-                    <option value="III">III</option>
-                    <option value="IV">IV</option>
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="role">Role:</label>
-                  <input type="text" id="role" name="role" />
-                </div>
-                <div>
-                  <label htmlFor="rollNumber">Roll Number:</label>
-                  <input type="text" id="rollNumber" name="rollNumber" onChange={handleRollNumberChange} />
-                </div>
-                <div>
-                  <label htmlFor="studentName">Student Name:</label>
-                  <input type="text" id="studentName" name="studentName" value={studentName} readOnly />
-                </div>
-                <div>
-                  <label htmlFor="observation">Observation:</label>
-                  <input type="text" id="observation" name="observation" />
-                </div>
-                <button type="submit">Add</button>
-                <button type="submit">Submit</button>
-              </form>
-            )}
-          </div>
->>>>>>> 825cb5a179fb9239b0ba15df628166e482b4d2a8
         </div>
       </div>
     </div>
