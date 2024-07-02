@@ -19,13 +19,13 @@
   align-items: center;
   background-color: #002952;
   color: white;
-  padding: 20px; 
+  padding: 20px;
   z-index: 1000;
   box-shadow: 0px 10px 10px -10px rgba(0, 0, 0, 0.75);
 }
 
 .compHeader img {
-  width: 70px; /* Increased logo size */
+  width: 70px;
   height: 70px;
 }
 
@@ -42,14 +42,14 @@
   font-size: 20px;
   padding: 8px 15px;
   background: linear-gradient(to bottom, #ff6e6e 0%, #cc0000 100%);
-  border-radius: 50px; /* Rounded corners */
-  border: 1px solid #cc0000; /* Border color to match the button */
+  border-radius: 50px;
+  border: 1px solid #cc0000;
   cursor: pointer;
   transition: background-color 0.3s;
   display: inline-block;
   text-align: center;
-  box-shadow: 0px 10px 14px -7px #990000; /* Adjusted shadow color to match the button */
-  text-shadow: 0px 1px 0px #990000; /* Adjusted text shadow color to match the button */
+  box-shadow: 0px 10px 14px -7px #990000;
+  text-shadow: 0px 1px 0px #990000;
 }
 
 .compHeader a:hover {
@@ -75,10 +75,10 @@
   color: white;
   font-size: 20px;
   margin-bottom: 20px;
-  text-align: center; /* Center align the heading */
-  background-color: #005580; /* Background color for the heading */
-  padding: 10px 0; /* Padding for the heading */
-  border-radius: 10px; 
+  text-align: center;
+  background-color: #005580;
+  padding: 10px 0;
+  border-radius: 10px;
 }
 
 .sidebar a {
@@ -87,14 +87,13 @@
   text-decoration: none;
   padding: 10px 20px;
   margin-bottom: 20px;
-  border-left: 10px;
-  border-left: 5px solid #FFCC00; /* Left border for links */
+  border-left: 5px solid #FFCC00;
 }
 
 .sidebar a:hover {
-  background-color: #005580; /* Hover background color */
+  background-color: #005580;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
-  transform: translateY(-2px); /* Move the link up by 2 pixels */
+  transform: translateY(-2px);
   transition: transform 0.2s ease;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
@@ -108,22 +107,87 @@
   border-radius: 20px;
 }
 
-.menu {
-  background-color: #FFCC00;
-  padding: 10px;
-  text-align: left;
-}
-
-.menu a {
-  margin-right: 20px;
-  color: #003366;
-  text-decoration: none;
-  font-weight: bold;
-}
-
 .welcome {
-  font-size: xx-large; /* Increased font size */
-  font-weight: bold; /* Bold font weight */
-  text-align: center; /* Center align the text */
-  margin-top: 10px; /* Increased top margin */
+  font-size: xx-large;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 10px;
 }
+
+/* Additional styles for collapsible Defaulters Entry section */
+.defaultersEntry ul {
+  list-style-type: none;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.defaultersEntry ul li {
+  margin-top: 5px;
+}
+
+.defaultersEntry a span {
+  margin-left: 30px;
+}
+
+/* Form container styling */
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 20px;
+  width: 100%; /* Full width to ensure alignment */
+  max-width: 500px; /* Adjust as needed */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Form group styling */
+.formGroup {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.formGroup label {
+  width: 150px; /* Fixed width for labels */
+  text-align: left;
+  font-weight: bold; /* Make labels bold */
+}
+
+.formGroup input,
+.formGroup select {
+  flex-grow: 1;
+  padding: 8px;
+  width: calc(100% - 160px); /* Adjust to ensure consistent width */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+/* Button styling */
+.login-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center; /* Center-align buttons */
+  width: 100%; /* Ensure full width for proper centering */
+  margin-top: 20px; /* Add some space above the buttons */
+}
+
+.login-buttons button {
+  background: linear-gradient(to bottom, #66ccff 0%, #0066cc 100%);
+  border: none;
+  color: white;
+  padding: 8px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 50px;
+  width: auto;
+  height: 40px;
+}
+
+.login-buttons button:hover {
+  background: linear-gradient(to bottom, #0066cc 0%, #66ccff 100%);
+}
+
