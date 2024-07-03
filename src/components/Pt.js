@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import './comp.css';
 
@@ -16,6 +16,9 @@ function Pt() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [entryDate, setEntryDate] = useState('');
+  const [rollNumber, setRollNumber] = useState(''); // Define rollNumber state
+  const [observation, setObservation] = useState(''); // Define observation state
+  const [timeIn, setTimeIn] = useState(''); // Define timeIn state
 
   const toggleDefaulters = () => {
     setIsDefaultersExpanded(!isDefaultersExpanded);
@@ -57,7 +60,7 @@ function Pt() {
     };
 
     if (currentView === 'latecomers') {
-      formData.time_in = e.target.time_in ? e.target.time_in.value || '' : '';
+      formData.time_in = e.target.time_in.value || '';
     } else if (currentView === 'dresscode') {
       formData.observation = e.target.observation.value || '';
     }
@@ -75,9 +78,12 @@ function Pt() {
 
       if (response.ok) {
         alert('Form submitted successfully');
-        e.target.reset();
+        e.target.reset(); // Reset the form
         setStudentName('');
         setSelectedMentor('');
+        setRollNumber(''); // Reset rollNumber state
+        setObservation(''); // Reset observation state
+        setTimeIn('');
         console.log('Form data submitted successfully:', formData);
       } else {
         alert('Failed to submit form');
@@ -91,49 +97,43 @@ function Pt() {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-
+  
     // Check form validity before submission
     const form = e.target.form;
     if (!form.checkValidity()) {
       form.reportValidity();
       return;
     }
-
-    // Extract data from state
-    const academicYear = e.target.academicYear.value;
-    const semester = e.target.semester.value;
-    const department = e.target.department.value;
-    const year = e.target.year.value;
-    const rollNumber = e.target.rollNumber.value;
-    const entryDate = e.target.entryDate.value;
-    const studentName = e.target.studentName.value;
-
+  
+    // Extract data from form elements
+    const formData = {
+      academicYear: form.academicYear.value,
+      semester: form.semester.value,
+      department: form.department.value,
+      mentor: selectedMentor,
+      year: form.year.value,
+      rollNumber: form.rollNumber.value,
+      studentName: form.studentName.value,
+      entryDate: form.entryDate.value,
+    };
+  
     let additionalField = '';
     if (currentView === 'latecomers') {
-      additionalField = e.target.time_in.value;
+      additionalField = form.time_in.value || '';
+      setTimeIn(additionalField); // Update timeIn state
     } else if (currentView === 'dresscode') {
-      additionalField = e.target.observation.value;
+      additionalField = form.observation.value || '';
+      setObservation(additionalField); // Update observation state
     }
-
-    const formData = {
-      academicYear,
-      semester,
-      department,
-      mentor: selectedMentor,
-      year,
-      rollNumber,
-      studentName,
-      entryDate,
-    };
-
+  
     if (currentView === 'latecomers') {
       formData.time_in = additionalField;
     } else if (currentView === 'dresscode') {
       formData.observation = additionalField;
     }
-
+  
     console.log('Form Data:', formData);
-
+  
     try {
       const response = await fetch(`http://localhost:5000/${currentView}`, {
         method: 'POST',
@@ -142,15 +142,16 @@ function Pt() {
         },
         body: JSON.stringify(formData),
       });
-
+  
       if (response.ok) {
         alert('Form submitted successfully');
         console.log('Form data submitted successfully:', formData);
-
+  
         // Clear specific fields
-        e.target.reset();
+        setRollNumber(''); // Reset rollNumber state
         setStudentName('');
-        setSelectedMentor('');
+        setObservation(''); // Reset observation state
+        setTimeIn(''); // Reset timeIn state
       } else {
         alert('Failed to submit form');
         console.error('Failed to submit data:', await response.text());
@@ -215,10 +216,6 @@ function Pt() {
                 </select>
               </div>
               <div className="formGroup">
-                <label htmlFor="entryDate">Date:</label>
-                <input type="date" id="entryDate" name="entryDate" onChange={(e) => setEntryDate(e.target.value)} required />
-              </div>
-              <div className="formGroup">
                 <label htmlFor="department">Department:</label>
                 <select id="department" name="department" onChange={(e) => setSelectedDepartment(e.target.value)} required>
                   <option value="">--Select--</option>
@@ -254,22 +251,26 @@ function Pt() {
               </div>
               <div className="formGroup">
                 <label htmlFor="rollNumber">Roll Number:</label>
-                <input type="text" id="rollNumber" name="rollNumber" required />
+                <input type="text" id="rollNumber" name="rollNumber" value={rollNumber} onChange={(e) => setRollNumber(e.target.value)} required />
               </div>
               <div className="formGroup">
                 <label htmlFor="studentName">Student Name:</label>
                 <input type="text" id="studentName" name="studentName" value={studentName} onChange={(e) => setStudentName(e.target.value)} required/>
               </div>
+              <div className="formGroup">
+                <label htmlFor="entryDate">Date:</label>
+                <input type="date" id="entryDate" name="entryDate" onChange={(e) => setEntryDate(e.target.value)} required />
+              </div>
               {currentView === 'latecomers' && (
                 <div className="formGroup">
                   <label htmlFor="time_in">Time In:</label>
-                  <input type="time" id="time_in" name="time_in" required />
+                  <input type="time" id="time_in" name="time_in" value={timeIn} onChange={(e) => setTimeIn(e.target.value)} required />
                 </div>
               )}
               {currentView === 'dresscode' && (
                 <div className="formGroup">
                   <label htmlFor="observation">Observation:</label>
-                  <input type="text" id="observation" name="observation" required />
+                  <input type="text" id="observation" name="observation" value={observation} onChange={(e) => setObservation(e.target.value)} required />
                 </div>
               )}
               </div>
