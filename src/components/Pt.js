@@ -13,6 +13,9 @@ function Pt() {
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedMentor, setSelectedMentor] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [entryDate, setEntryDate] = useState('');
 
   const toggleDefaulters = () => {
     setIsDefaultersExpanded(!isDefaultersExpanded);
@@ -28,6 +31,17 @@ function Pt() {
     const fetchedStudentName = await fetchStudentNameFromDatabase(rollNumber);
     setStudentName(fetchedStudentName);
   };
+
+  async function fetchStudentNameFromDatabase(rollNumber) {
+    // Replace with actual database call
+    // For now, return a placeholder name based on roll number
+    const mockDatabase = {
+      '123': 'John Doe',
+      '456': 'Jane Smith',
+      '789': 'Alice Johnson',
+    };
+    return mockDatabase[rollNumber] || 'Unknown Student';
+  }
 
   const fetchMentors = async (department, year) => {
     try {
@@ -47,7 +61,7 @@ function Pt() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const formData = {
       academicYear: e.target.academicYear.value,
       semester: e.target.semester.value,
@@ -56,17 +70,17 @@ function Pt() {
       year: e.target.year.value,
       rollNumber: e.target.rollNumber.value,
       studentName,
+      entryDate: e.target.entryDate.value,
     };
-  
+
     if (currentView === 'latecomers') {
-      // Check if time_in exists in the form data before accessing its value
       formData.time_in = e.target.time_in ? e.target.time_in.value || '' : '';
     } else if (currentView === 'dresscode') {
       formData.observation = e.target.observation.value || '';
     }
-  
+
     console.log('Form Data:', formData);
-  
+
     try {
       const response = await fetch(`http://localhost:5000/${currentView}`, {
         method: 'POST',
@@ -75,7 +89,7 @@ function Pt() {
         },
         body: JSON.stringify(formData),
       });
-  
+
       if (response.ok) {
         alert('Form submitted successfully');
         console.log('Form data submitted successfully:', formData);
@@ -88,13 +102,18 @@ function Pt() {
       console.error('Error submitting data:', error);
     }
   };
-  
+
+  const handleGenerateReport = (e) => {
+    e.preventDefault();
+    // Implement the logic to generate a report based on fromDate and toDate
+    console.log('Generating report from', fromDate, 'to', toDate);
+  };
 
   return (
     <div className="compContainer">
       <div className="compHeader">
         <img src="/image.png" alt="VCET Logo" />
-        <h1>VELAMMAL COLLEGE OF ENGINEERING AND TECHNOLOGY</h1>
+        <h1>VELAMMAL COLLEGE OF ENGINEERING AND TECHNOLOGY <br /><span>(Autonomous)</span></h1>
         <a href="/">Sign Out</a>
       </div>
       <div className="contentWrapper">
@@ -112,7 +131,7 @@ function Pt() {
               </ul>
             )}
           </div>
-          <a href="/attendance">Generate Report</a>
+          <a href="#generateReport" onClick={() => setCurrentView('generateReport')}>Generate Report</a>
         </div>
         <div className="mainContent">
           {currentView === '' && (
@@ -121,10 +140,10 @@ function Pt() {
             </div>
           )}
           {(currentView === 'dresscode' || currentView === 'latecomers') && (
-            <form className="formContainer" onSubmit={handleSubmit}>
+            <form className="formContainer outlinedForm" onSubmit={handleSubmit}>
               <div className="formGroup">
                 <label htmlFor="academicYear">Academic Year:</label>
-                <select id="academicYear" name="academicYear">
+                <select id="academicYear" name="academicYear" required>
                   <option value="2024-2028">2024-2028</option>
                   <option value="2023-2027">2023-2027</option>
                   <option value="2022-2026">2022-2026</option>
@@ -133,14 +152,14 @@ function Pt() {
               </div>
               <div className="formGroup">
                 <label htmlFor="semester">Semester:</label>
-                <select id="semester" name="semester">
+                <select id="semester" name="semester" required>
                   <option value="Odd">Odd</option>
                   <option value="Even">Even</option>
                 </select>
               </div>
               <div className="formGroup">
                 <label htmlFor="department">Department:</label>
-                <select id="department" name="department" onChange={(e) => setSelectedDepartment(e.target.value)}>
+                <select id="department" name="department" onChange={(e) => setSelectedDepartment(e.target.value)} required>
                   <option value="">Select Department</option>
                   <option value="CSE">CSE</option>
                   <option value="ECE">ECE</option>
@@ -153,7 +172,7 @@ function Pt() {
               </div>
               <div className="formGroup">
                 <label htmlFor="year">Year:</label>
-                <select id="year" name="year" onChange={(e) => setSelectedYear(e.target.value)}>
+                <select id="year" name="year" onChange={(e) => setSelectedYear(e.target.value)} required>
                   <option value="">Select Year</option>
                   <option value="I">I</option>
                   <option value="II">II</option>
@@ -163,8 +182,8 @@ function Pt() {
               </div>
               <div className="formGroup">
                 <label htmlFor="mentor">Mentor:</label>
-                <select id="mentor" name="mentor" onChange={(e) => setSelectedMentor(e.target.value)}>
-                <option value="">Select Mentor</option>
+                <select id="mentor" name="mentor" onChange={(e) => setSelectedMentor(e.target.value)} required>
+                  <option value="">Select Mentor</option>
                   {mentors.map((mentor) => (
                     <option key={mentor._id} value={mentor.name}>{mentor.name}</option>
                   ))}
@@ -172,27 +191,45 @@ function Pt() {
               </div>
               <div className="formGroup">
                 <label htmlFor="rollNumber">Roll Number:</label>
-                <input type="text" id="rollNumber" name="rollNumber" onChange={handleRollNumberChange} />
+                <input type="text" id="rollNumber" name="rollNumber" onChange={handleRollNumberChange} required />
               </div>
               <div className="formGroup">
                 <label htmlFor="studentName">Student Name:</label>
                 <input type="text" id="studentName" name="studentName" value={studentName} readOnly />
               </div>
-              {currentView === 'dresscode' && (
-                <div className="formGroup">
-                  <label htmlFor={formLabel.toLowerCase()}>{formLabel}:</label>
-                  <input type="text" id={formLabel.toLowerCase()} name={formLabel.toLowerCase()} />
-                </div>
-              )}
+              <div className="formGroup">
+                <label htmlFor="entryDate">Date:</label>
+                <input type="date" id="entryDate" name="entryDate" onChange={(e) => setEntryDate(e.target.value)} required />
+              </div>
               {currentView === 'latecomers' && (
                 <div className="formGroup">
-                  <label htmlFor={formLabel.toLowerCase()}>{formLabel}:</label>
-                  <input type="text" id="time_in" name="time_in" />
+                  <label htmlFor="time_in">Time In:</label>
+                  <input type="time" id="time_in" name="time_in" required />
                 </div>
               )}
-              <div className="com-login-buttons">
-                <button type="button">Add</button>
+              {currentView === 'dresscode' && (
+                <div className="formGroup">
+                  <label htmlFor="observation">Observation:</label>
+                  <input type="text" id="observation" name="observation" required />
+                </div>
+              )}
+              <div className="formGroup">
                 <button type="submit">Submit</button>
+              </div>
+            </form>
+          )}
+          {currentView === 'generateReport' && (
+            <form className="formContainer outlinedForm" onSubmit={handleGenerateReport}>
+              <div className="formGroup">
+                <label htmlFor="fromDate">From Date:</label>
+                <input type="date" id="fromDate" name="fromDate" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required />
+              </div>
+              <div className="formGroup">
+                <label htmlFor="toDate">To Date:</label>
+                <input type="date" id="toDate" name="toDate" value={toDate} onChange={(e) => setToDate(e.target.value)} required />
+              </div>
+              <div className="formGroup">
+                <button type="submit">Generate Report</button>
               </div>
             </form>
           )}
@@ -200,17 +237,6 @@ function Pt() {
       </div>
     </div>
   );
-}
-
-async function fetchStudentNameFromDatabase(rollNumber) {
-  // Replace with actual database call
-  // For now, return a placeholder name based on roll number
-  const mockDatabase = {
-    '123': 'John Doe',
-    '456': 'Jane Smith',
-    '789': 'Alice Johnson',
-  };
-  return mockDatabase[rollNumber] || 'Unknown Student';
 }
 
 export default Pt;
