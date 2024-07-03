@@ -4,7 +4,7 @@ const { MongoClient } = require('mongodb');
 const cors = require('cors');
 
 const app = express();
-const port = 5000; // Ensure this port is not in use by any other application
+const port = 5000;
 
 const uri = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(uri);
@@ -14,11 +14,8 @@ app.use(cors());
 
 app.post('/login', async (req, res) => {
     const { username, password, role } = req.body;
-    console.log('Received role:', role);
-    console.log('Received login request:', { username, role });
 
     if (!['pe', 'mentor', 'hod'].includes(role)) {
-        console.log('Access forbidden for role:', role); // Logging the role that caused the issue
         return res.status(403).json({ message: 'Access forbidden for this role' });
     }
 
@@ -37,7 +34,7 @@ app.post('/login', async (req, res) => {
             return res.status(403).json({ message: 'Access forbidden for this role' });
         }
 
-        const query = { username: username, password: password };
+        const query = { username, password };
         const user = await collection.findOne(query);
 
         if (user) {
@@ -72,7 +69,49 @@ app.get('/mentors', async (req, res) => {
     }
 });
 
-app.listen(port, () => {
-    console.log('Server is running on http://localhost:5000');
+app.post('/latecomers', async (req, res) => {
+    const formData = req.body;
+    console.log('Received latecomers data:', formData); // Check if data is received correctly
 
+    try {
+        await client.connect();
+        const database = client.db('defaulterTrackingSystem');
+        const latecomersCollection = database.collection('latecomers_db');
+
+        await latecomersCollection.insertOne(formData);
+        console.log("Latecomers data inserted");
+
+        res.status(200).json({ message: 'Latecomers data submitted successfully' });
+    } catch (error) {
+        console.error("Error submitting latecomers data:", error);
+        res.status(500).json({ message: 'Failed to submit latecomers data' });
+    } finally {
+        await client.close();
+    }
+});
+
+
+app.post('/dresscode', async (req, res) => {
+    const formData = req.body;
+    console.log('Received dresscode data:', formData); // Check if data is received correctly
+
+    try {
+        await client.connect();
+        const database = client.db('defaulterTrackingSystem');
+        const disciplineCollection = database.collection('discipline_db');
+
+        await disciplineCollection.insertOne(formData);
+        console.log("Discipline data inserted");
+
+        res.status(200).json({ message: 'Discipline data submitted successfully' });
+    } catch (error) {
+        console.error("Error submitting discipline data:", error);
+        res.status(500).json({ message: 'Failed to submit discipline data' });
+    } finally {
+        await client.close();
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });

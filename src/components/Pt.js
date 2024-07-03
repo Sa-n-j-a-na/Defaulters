@@ -4,7 +4,6 @@ import './comp.css';
 
 function Pt() {
   const location = useLocation();
- 
 
   const [isDefaultersExpanded, setIsDefaultersExpanded] = useState(false);
   const [currentView, setCurrentView] = useState('');
@@ -13,6 +12,7 @@ function Pt() {
   const [formLabel, setFormLabel] = useState('Observation');
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
+  const [selectedMentor, setSelectedMentor] = useState('');
 
   const toggleDefaulters = () => {
     setIsDefaultersExpanded(!isDefaultersExpanded);
@@ -20,11 +20,7 @@ function Pt() {
 
   const handleMenuClick = (view) => {
     setCurrentView(view);
-    if (view === 'latecomers') {
-      setFormLabel('Time In');
-    } else {
-      setFormLabel('Observation');
-    }
+    setFormLabel(view === 'latecomers' ? 'Time In' : 'Observation');
   };
 
   const handleRollNumberChange = async (e) => {
@@ -49,20 +45,50 @@ function Pt() {
     }
   }, [selectedDepartment, selectedYear]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({
+  
+    const formData = {
       academicYear: e.target.academicYear.value,
       semester: e.target.semester.value,
       department: e.target.department.value,
-      mentor: e.target.mentor.value,
+      mentor: selectedMentor,
       year: e.target.year.value,
       rollNumber: e.target.rollNumber.value,
       studentName,
-      [formLabel.toLowerCase()]: e.target[formLabel.toLowerCase()].value,
-    });
-    // Reset form fields or perform other actions as needed
+    };
+  
+    if (currentView === 'latecomers') {
+      // Check if time_in exists in the form data before accessing its value
+      formData.time_in = e.target.time_in ? e.target.time_in.value || '' : '';
+    } else if (currentView === 'dresscode') {
+      formData.observation = e.target.observation.value || '';
+    }
+  
+    console.log('Form Data:', formData);
+  
+    try {
+      const response = await fetch(`http://localhost:5000/${currentView}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+  
+      if (response.ok) {
+        alert('Form submitted successfully');
+        console.log('Form data submitted successfully:', formData);
+      } else {
+        alert('Failed to submit form');
+        console.error('Failed to submit data:', await response.text());
+      }
+    } catch (error) {
+      alert('Error submitting form');
+      console.error('Error submitting data:', error);
+    }
   };
+  
 
   return (
     <div className="compContainer">
@@ -81,8 +107,8 @@ function Pt() {
             </a>
             {isDefaultersExpanded && (
               <ul>
-                <li><a href="#" onClick={() => handleMenuClick('dresscode')}>Dresscode and discipline</a></li>
-                <li><a href="#" onClick={() => handleMenuClick('latecomers')}>Latecomers</a></li>
+                <li><a href="#discipline" onClick={() => handleMenuClick('dresscode')}>Dresscode and discipline</a></li>
+                <li><a href="#latecomers" onClick={() => handleMenuClick('latecomers')}>Latecomers</a></li>
               </ul>
             )}
           </div>
@@ -137,11 +163,20 @@ function Pt() {
               </div>
               <div className="formGroup">
                 <label htmlFor="mentor">Mentor:</label>
-                <select id="mentor" name="mentor">
+                <select id="mentor" name="mentor" onChange={(e) => setSelectedMentor(e.target.value)}>
+                <option value="">Select Mentor</option>
                   {mentors.map((mentor) => (
                     <option key={mentor._id} value={mentor.name}>{mentor.name}</option>
                   ))}
                 </select>
+              </div>
+              <div className="formGroup">
+                <label htmlFor="rollNumber">Roll Number:</label>
+                <input type="text" id="rollNumber" name="rollNumber" onChange={handleRollNumberChange} />
+              </div>
+              <div className="formGroup">
+                <label htmlFor="studentName">Student Name:</label>
+                <input type="text" id="studentName" name="studentName" value={studentName} readOnly />
               </div>
               {currentView === 'dresscode' && (
                 <div className="formGroup">
@@ -152,17 +187,9 @@ function Pt() {
               {currentView === 'latecomers' && (
                 <div className="formGroup">
                   <label htmlFor={formLabel.toLowerCase()}>{formLabel}:</label>
-                  <input type="text" id={formLabel.toLowerCase()} name={formLabel.toLowerCase()} />
+                  <input type="text" id="time_in" name="time_in" />
                 </div>
               )}
-              <div className="formGroup">
-                <label htmlFor="rollNumber">Roll Number:</label>
-                <input type="text" id="rollNumber" name="rollNumber" onChange={handleRollNumberChange} />
-              </div>
-              <div className="formGroup">
-                <label htmlFor="studentName">Student Name:</label>
-                <input type="text" id="studentName" name="studentName" value={studentName} readOnly />
-              </div>
               <div className="com-login-buttons">
                 <button type="button">Add</button>
                 <button type="submit">Submit</button>
