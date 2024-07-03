@@ -170,13 +170,10 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-top: 20px;
   width: 100%; /* Full width to ensure alignment */
   max-width: 500px; /* Adjust as needed */
   margin-left: auto;
   margin-right: auto;
-  border: 2px solid black; /* Black outline */
-  border-radius: 5px;
   padding: 20px; /* Padding for the form */
 }
 
@@ -190,7 +187,7 @@
 }
 
 .formGroup label {
-  width: 150px; /* Fixed width for labels */
+  width: 250px; /* Fixed width for labels */
   text-align: left;
   font-weight: bold; /* Make labels bold */
 }
@@ -208,7 +205,7 @@
 /* Button styling */
 .com-login-buttons {
   display: flex;
-  gap: 10px;
+  gap: 30px;
   justify-content: center; /* Center-align buttons */
   width: 100%; /* Ensure full width for proper centering */
   margin-top: 20px; /* Add some space above the buttons */
@@ -230,12 +227,6 @@
   background: linear-gradient(to bottom, #0066cc 0%, #66ccff 100%);
 }
 
-.formGroupInline {
-  display: flex;
-  justify-content: space-between;
-  width: 80%;
-  gap: 20px; /* Adjust the gap as needed */
-}
 
 .generate-report-container {
   display: flex;
@@ -244,7 +235,7 @@
   width: 100%;
 }
 
-.generate-report-button {
+.generate-report-button button{
   background: linear-gradient(to bottom, #66ccff 0%, #0066cc 100%);
   border: none;
   color: white;
@@ -260,7 +251,7 @@
   margin-top:10px;
 
 }
-.generate-report-button:hover{
+.generate-report-button button:hover{
   background: linear-gradient(to bottom, #0066cc 0%, #66ccff 100%);}
 
 .formGroupInline label {
@@ -269,4 +260,12 @@
 
 .formGroupInline input[type="date"] {
   width: 38%; /* Adjust the width of the input fields */
+}
+
+.borderContainer{
+  border: 2px solid black; /* Black outline */
+  border-radius: 5px;
+  padding-top: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
