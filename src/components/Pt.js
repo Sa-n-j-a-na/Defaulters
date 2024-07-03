@@ -26,23 +26,6 @@ function Pt() {
     setFormLabel(view === 'latecomers' ? 'Time In' : 'Observation');
   };
 
-  const handleRollNumberChange = async (e) => {
-    const rollNumber = e.target.value;
-    const fetchedStudentName = await fetchStudentNameFromDatabase(rollNumber);
-    setStudentName(fetchedStudentName);
-  };
-
-  async function fetchStudentNameFromDatabase(rollNumber) {
-    // Replace with actual database call
-    // For now, return a placeholder name based on roll number
-    const mockDatabase = {
-      '123': 'John Doe',
-      '456': 'Jane Smith',
-      '789': 'Alice Johnson',
-    };
-    return mockDatabase[rollNumber] || 'Unknown Student';
-  }
-
   const fetchMentors = async (department, year) => {
     try {
       const response = await fetch(`http://localhost:5000/mentors?dept=${department}&year=${year}`);
@@ -69,7 +52,7 @@ function Pt() {
       mentor: selectedMentor,
       year: e.target.year.value,
       rollNumber: e.target.rollNumber.value,
-      studentName,
+      studentName: e.target.studentName.value,
       entryDate: e.target.entryDate.value,
     };
 
@@ -92,7 +75,82 @@ function Pt() {
 
       if (response.ok) {
         alert('Form submitted successfully');
+        e.target.reset();
+        setStudentName('');
+        setSelectedMentor('');
         console.log('Form data submitted successfully:', formData);
+      } else {
+        alert('Failed to submit form');
+        console.error('Failed to submit data:', await response.text());
+      }
+    } catch (error) {
+      alert('Error submitting form');
+      console.error('Error submitting data:', error);
+    }
+  };
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+
+    // Check form validity before submission
+    const form = e.target.form;
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    // Extract data from state
+    const academicYear = e.target.academicYear.value;
+    const semester = e.target.semester.value;
+    const department = e.target.department.value;
+    const year = e.target.year.value;
+    const rollNumber = e.target.rollNumber.value;
+    const entryDate = e.target.entryDate.value;
+    const studentName = e.target.studentName.value;
+
+    let additionalField = '';
+    if (currentView === 'latecomers') {
+      additionalField = e.target.time_in.value;
+    } else if (currentView === 'dresscode') {
+      additionalField = e.target.observation.value;
+    }
+
+    const formData = {
+      academicYear,
+      semester,
+      department,
+      mentor: selectedMentor,
+      year,
+      rollNumber,
+      studentName,
+      entryDate,
+    };
+
+    if (currentView === 'latecomers') {
+      formData.time_in = additionalField;
+    } else if (currentView === 'dresscode') {
+      formData.observation = additionalField;
+    }
+
+    console.log('Form Data:', formData);
+
+    try {
+      const response = await fetch(`http://localhost:5000/${currentView}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        alert('Form submitted successfully');
+        console.log('Form data submitted successfully:', formData);
+
+        // Clear specific fields
+        e.target.reset();
+        setStudentName('');
+        setSelectedMentor('');
       } else {
         alert('Failed to submit form');
         console.error('Failed to submit data:', await response.text());
@@ -141,39 +199,44 @@ function Pt() {
           )}
           {(currentView === 'dresscode' || currentView === 'latecomers') && (
             <form className="formContainer outlinedForm" onSubmit={handleSubmit}>
+              <div className='borderContainer'>
               <div className="formGroup">
                 <label htmlFor="academicYear">Academic Year:</label>
                 <select id="academicYear" name="academicYear" required>
-                  <option value="2024-2028">2024-2028</option>
-                  <option value="2023-2027">2023-2027</option>
-                  <option value="2022-2026">2022-2026</option>
-                  <option value="2021-2025">2021-2025</option>
+                  <option value="2024-2028">2024-2025</option>
+                  <option value="2023-2027">2025-2026</option>
                 </select>
               </div>
               <div className="formGroup">
                 <label htmlFor="semester">Semester:</label>
                 <select id="semester" name="semester" required>
-                  <option value="Odd">Odd</option>
-                  <option value="Even">Even</option>
+                  <option value="ODD">ODD</option>
+                  <option value="EVEN">EVEN</option>
                 </select>
+              </div>
+              <div className="formGroup">
+                <label htmlFor="entryDate">Date:</label>
+                <input type="date" id="entryDate" name="entryDate" onChange={(e) => setEntryDate(e.target.value)} required />
               </div>
               <div className="formGroup">
                 <label htmlFor="department">Department:</label>
                 <select id="department" name="department" onChange={(e) => setSelectedDepartment(e.target.value)} required>
-                  <option value="">Select Department</option>
+                  <option value="">--Select--</option>
                   <option value="CSE">CSE</option>
                   <option value="ECE">ECE</option>
                   <option value="EEE">EEE</option>
                   <option value="IT">IT</option>
                   <option value="AIDS">AIDS</option>
-                  <option value="Civil">Civil</option>
-                  <option value="Mech">Mech</option>
+                  <option value="CIVIL">CIVIL</option>
+                  <option value="MECH">MECH</option>
+                  <option value="CYBERSECURITY">CYBER SECURITY</option>
+                  <option value="MBA">MBA</option>
                 </select>
               </div>
               <div className="formGroup">
                 <label htmlFor="year">Year:</label>
                 <select id="year" name="year" onChange={(e) => setSelectedYear(e.target.value)} required>
-                  <option value="">Select Year</option>
+                  <option value="">--Select--</option>
                   <option value="I">I</option>
                   <option value="II">II</option>
                   <option value="III">III</option>
@@ -183,7 +246,7 @@ function Pt() {
               <div className="formGroup">
                 <label htmlFor="mentor">Mentor:</label>
                 <select id="mentor" name="mentor" onChange={(e) => setSelectedMentor(e.target.value)} required>
-                  <option value="">Select Mentor</option>
+                  <option value="">--Select--</option>
                   {mentors.map((mentor) => (
                     <option key={mentor._id} value={mentor.name}>{mentor.name}</option>
                   ))}
@@ -191,15 +254,11 @@ function Pt() {
               </div>
               <div className="formGroup">
                 <label htmlFor="rollNumber">Roll Number:</label>
-                <input type="text" id="rollNumber" name="rollNumber" onChange={handleRollNumberChange} required />
+                <input type="text" id="rollNumber" name="rollNumber" required />
               </div>
               <div className="formGroup">
                 <label htmlFor="studentName">Student Name:</label>
-                <input type="text" id="studentName" name="studentName" value={studentName} readOnly />
-              </div>
-              <div className="formGroup">
-                <label htmlFor="entryDate">Date:</label>
-                <input type="date" id="entryDate" name="entryDate" onChange={(e) => setEntryDate(e.target.value)} required />
+                <input type="text" id="studentName" name="studentName" value={studentName} onChange={(e) => setStudentName(e.target.value)} required/>
               </div>
               {currentView === 'latecomers' && (
                 <div className="formGroup">
@@ -213,13 +272,16 @@ function Pt() {
                   <input type="text" id="observation" name="observation" required />
                 </div>
               )}
-              <div className="formGroup">
+              </div>
+              <div className="formGroup buttonGroup com-login-buttons">
                 <button type="submit">Submit</button>
+                <button type="button" onClick={handleAdd}>Add</button>
               </div>
             </form>
           )}
           {currentView === 'generateReport' && (
-            <form className="formContainer outlinedForm" onSubmit={handleGenerateReport}>
+            <form className="formContainer" onSubmit={handleGenerateReport}>
+              <div className='borderContainer'>
               <div className="formGroup">
                 <label htmlFor="fromDate">From Date:</label>
                 <input type="date" id="fromDate" name="fromDate" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required />
@@ -227,8 +289,8 @@ function Pt() {
               <div className="formGroup">
                 <label htmlFor="toDate">To Date:</label>
                 <input type="date" id="toDate" name="toDate" value={toDate} onChange={(e) => setToDate(e.target.value)} required />
-              </div>
-              <div className="formGroup">
+              </div></div>
+              <div className="generate-report-button">
                 <button type="submit">Generate Report</button>
               </div>
             </form>
