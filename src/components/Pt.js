@@ -198,11 +198,14 @@ function Pt() {
         <div className="mainContent">
           {currentView === '' && (
             <div className="welcome">
-              Welcome PE Department
+              Welcome Department of Physical Education 
             </div>
           )}
           {(currentView === 'dresscode' || currentView === 'latecomers') && (
+                         <div className="welcomeform">
+          <h2>  Welcome Department of Physical Education </h2> 
             <form className="formContainer outlinedForm" onSubmit={handleSubmit}>
+              
               <div className='borderContainer'>
               <div className="formGroup">
                 <label htmlFor="academicYear">Academic Year:</label>
@@ -281,10 +284,14 @@ function Pt() {
                 <button type="submit">Submit</button>
                 <button type="button" onClick={handleAdd}>Add</button>
               </div>
-            </form>
+            </form></div>
           )}
           {currentView === 'generateReport' && (
+             <div className="welcomeform">
+          <h2>  Welcome Department of Physical Education </h2> 
+           
         <form className="formContainer outlinedForm" onSubmit={handleGenerateReport}>
+         
           <div className="borderContainer">
             <div className="formGroup">
               <label>Defaulters type:</label>
@@ -306,7 +313,7 @@ function Pt() {
           <div className="formGroup buttonGroup com-login-buttons">
             <button type="submit">Generate Report</button>
           </div>
-        </form>
+        </form></div>
       )}
         </div>
       </div>
