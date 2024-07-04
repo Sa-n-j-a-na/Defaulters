@@ -112,6 +112,44 @@ app.post('/dresscode', async (req, res) => {
     }
 });
 
+app.get('/:defaulterType', async (req, res) => {
+    const { defaulterType } = req.params;
+    const { fromDate, toDate } = req.query;
+    try {
+        await client.connect();
+        const database = client.db('defaulterTrackingSystem');
+        let collection;
+
+        if (defaulterType === 'latecomers') {
+            collection = database.collection('latecomers_db');
+        } else if (defaulterType === 'dresscode') {
+            collection = database.collection('discipline_db');
+        } else {
+            return res.status(400).json({ message: 'Invalid defaulterType' });
+        }
+        const startDate = new Date(`${fromDate}T00:00:00.000Z`).toISOString();;
+        const endDate = new Date(`${toDate}T23:59:59.999Z`).toISOString();;
+  
+        const query = {
+            entryDate: {
+                $gte: startDate,
+                $lte: endDate
+            }
+        };
+        console.log(query);
+        const reportData = await collection.find(query).toArray();
+        console.log('Fetched report data:', reportData);
+        res.json(reportData);
+    } catch (error) {
+        console.error('Error fetching report data:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    } finally {
+        await client.close();
+    }
+});
+
+
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

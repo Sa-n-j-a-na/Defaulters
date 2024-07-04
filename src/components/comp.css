@@ -269,3 +269,38 @@
   padding-left: 20px;
   padding-right: 20px;
 }
+
+/*reportDisplay*/
+.reportDisplay {
+  margin: 20px;
+}
+
+.reportDisplay h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.reportDisplay table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.reportDisplay th, .reportDisplay td {
+  border: 1px solid #7a7a7a;
+  padding: 8px;
+  text-align: left;
+}
+
+.reportDisplay th {
+  background-color: #f2f2f2;
+}
+
+.reportDisplay tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.reportDisplay tbody tr:hover {
+  background-color: #e9e9e9;
+}

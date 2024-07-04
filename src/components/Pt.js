@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './comp.css';
+import ReportDisplay from './ReportDisplay';
 
 function Pt() {
   const location = useLocation();
-
+  const navigate = useNavigate();
+  
   const [isDefaultersExpanded, setIsDefaultersExpanded] = useState(false);
   const [currentView, setCurrentView] = useState('');
   const [mentors, setMentors] = useState([]);
@@ -19,6 +21,7 @@ function Pt() {
   const [rollNumber, setRollNumber] = useState(''); // Define rollNumber state
   const [observation, setObservation] = useState(''); // Define observation state
   const [timeIn, setTimeIn] = useState(''); // Define timeIn state
+  const [defaulterType, setDefaulterType] = useState('');
 
   const toggleDefaulters = () => {
     setIsDefaultersExpanded(!isDefaultersExpanded);
@@ -56,7 +59,7 @@ function Pt() {
       year: e.target.year.value,
       rollNumber: e.target.rollNumber.value,
       studentName: e.target.studentName.value,
-      entryDate: e.target.entryDate.value,
+      entryDate: new Date(e.target.entryDate.value).toISOString(),
     };
 
     if (currentView === 'latecomers') {
@@ -114,7 +117,7 @@ function Pt() {
       year: form.year.value,
       rollNumber: form.rollNumber.value,
       studentName: form.studentName.value,
-      entryDate: form.entryDate.value,
+      entryDate: new Date(form.entryDate.value).toISOString(),
     };
   
     let additionalField = '';
@@ -164,7 +167,7 @@ function Pt() {
 
   const handleGenerateReport = (e) => {
     e.preventDefault();
-    // Implement the logic to generate a report based on fromDate and toDate
+    navigate(`/report/${defaulterType}/${fromDate}/${toDate}`);
     console.log('Generating report from', fromDate, 'to', toDate);
   };
 
@@ -204,8 +207,8 @@ function Pt() {
               <div className="formGroup">
                 <label htmlFor="academicYear">Academic Year:</label>
                 <select id="academicYear" name="academicYear" required>
-                  <option value="2024-2028">2024-2025</option>
-                  <option value="2023-2027">2025-2026</option>
+                  <option value="2024-2025">2024-2025</option>
+                  <option value="2025-2026">2025-2026</option>
                 </select>
               </div>
               <div className="formGroup">
@@ -281,21 +284,30 @@ function Pt() {
             </form>
           )}
           {currentView === 'generateReport' && (
-            <form className="formContainer" onSubmit={handleGenerateReport}>
-              <div className='borderContainer'>
-              <div className="formGroup">
-                <label htmlFor="fromDate">From Date:</label>
-                <input type="date" id="fromDate" name="fromDate" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required />
-              </div>
-              <div className="formGroup">
-                <label htmlFor="toDate">To Date:</label>
-                <input type="date" id="toDate" name="toDate" value={toDate} onChange={(e) => setToDate(e.target.value)} required />
-              </div></div>
-              <div className="generate-report-button">
-                <button type="submit">Generate Report</button>
-              </div>
-            </form>
-          )}
+        <form className="formContainer outlinedForm" onSubmit={handleGenerateReport}>
+          <div className="borderContainer">
+            <div className="formGroup">
+              <label>Defaulters type:</label>
+              <select value={defaulterType} onChange={(e) => setDefaulterType(e.target.value)} required>
+                <option value="">--Select--</option>
+                <option value="dresscode">Dresscode and Discipline</option>
+                <option value="latecomers">Latecomers</option>
+              </select>
+            </div>
+            <div className="formGroup">
+              <label htmlFor="fromDate">From Date:</label>
+              <input type="date" id="fromDate" name="fromDate" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required />
+            </div>
+            <div className="formGroup">
+              <label htmlFor="toDate">To Date:</label>
+              <input type="date" id="toDate" name="toDate" value={toDate} onChange={(e) => setToDate(e.target.value)} required />
+            </div>
+          </div>
+          <div className="formGroup buttonGroup com-login-buttons">
+            <button type="submit">Generate Report</button>
+          </div>
+        </form>
+      )}
         </div>
       </div>
     </div>
