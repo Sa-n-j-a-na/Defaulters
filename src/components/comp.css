@@ -235,7 +235,7 @@
   width: 100%;
 }
 
-.generate-report-button button{
+.generate-report-button,.reportDisplay button{
   background: linear-gradient(to bottom, #66ccff 0%, #0066cc 100%);
   border: none;
   color: white;
@@ -251,7 +251,7 @@
   margin-top:10px;
 
 }
-.generate-report-button button:hover{
+.generate-report-button,.reportDisplay button:hover{
   background: linear-gradient(to bottom, #0066cc 0%, #66ccff 100%);}
 
 .formGroupInline label {

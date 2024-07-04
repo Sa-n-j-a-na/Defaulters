@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import './comp.css';
+import * as XLSX from 'xlsx';
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -25,9 +25,41 @@ const ReportDisplay = () => {
     fetchData();
   }, [defaulterType, fromDate, toDate]);
 
+  // Function to export data to Excel
+  const exportToExcel = () => {
+    const filename = `Report_${fromDate}_to_${toDate}.xlsx`;
+
+    // Prepare data for export
+    const exportData = reportData.map((item) => ({
+      'Academic Year': item.academicYear,
+      'Semester': item.semester,
+      'Department': item.department,
+      'Mentor': item.mentor,
+      'Year': item.year,
+      'Roll Number': item.rollNumber,
+      'Student Name': item.studentName,
+      'Entry Date': formatDate(item.entryDate),
+      ...(defaulterType === 'latecomers' && { 'Time In': item.time_in }),
+      ...(defaulterType === 'dresscode' && { 'Observation': item.observation }),
+    }));
+
+    // Create a new Excel workbook
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Report Data');
+
+    // Export the workbook as an Excel file
+    XLSX.writeFile(workbook, filename);
+  };
+
   return (
     <div className='reportDisplay'>
-      <h2>Report for {defaulterType} from {fromDate} to {toDate}</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h2>Report for {defaulterType} from {fromDate} to {toDate}</h2>
+        <button onClick={exportToExcel} style={{ marginLeft: 'auto' }}>Print Excel Report</button>
+      </div>
       <table>
         <thead>
           <tr>
