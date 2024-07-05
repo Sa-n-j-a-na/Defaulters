@@ -35,6 +35,7 @@ function Pt() {
   const fetchMentors = async (department, year) => {
     try {
       const response = await fetch(`http://localhost:5000/mentors?dept=${department}&year=${year}`);
+      console.log(response);
       const data = await response.json();
       setMentors(data);
     } catch (error) {
