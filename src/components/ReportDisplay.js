@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
+import saveAs from 'file-saver';
 import './comp.css';
 
 const formatDate = (dateString) => {
@@ -29,27 +30,11 @@ const ReportDisplay = () => {
     fetchData();
   }, [defaulterType, fromDate, toDate]);
 
-  const exportToExcel = () => {
-    const filename = `Report_${fromDate}_to_${toDate}.xlsx`;
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Report Data');
 
-    // Prepare data for export
-    const exportData = reportData.map((item) => ({
-      'Academic Year': item.academicYear,
-      'Semester': item.semester,
-      'Department': item.department,
-      'Mentor': item.mentor,
-      'Year': item.year,
-      'Roll Number': item.rollNumber,
-      'Student Name': item.studentName,
-      'Entry Date': formatDate(item.entryDate),
-      ...(defaulterType === 'latecomers' && { 'Time In': item.time_in }),
-      ...(defaulterType === 'dresscode' && { 'Observation': item.observation }),
-    }));
-
-    // Create a new Excel workbook
-    const workbook = XLSX.utils.book_new();
-
-    // Add the heading rows
+    // Add heading rows
     const heading = [
       ["Velammal College of Engineering and Technology"],
       ["(Autonomous)"],
@@ -59,49 +44,73 @@ const ReportDisplay = () => {
       [], // Empty row for spacing
     ];
 
-    const worksheetData = heading.concat([Object.keys(exportData[0])], exportData.map(Object.values));
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    // Add header row
+    const headers = [
+      'Academic Year', 'Semester', 'Department', 'Mentor', 'Year', 'Roll Number', 'Student Name', 'Entry Date',
+      ...(defaulterType === 'latecomers' ? ['Time In'] : []),
+      ...(defaulterType === 'dresscode' ? ['Observation'] : []),
+    ];
 
-    // Merge and center cells for headings
-    for (let i = 0; i < heading.length - 1; i++) {
-      const merge = { s: { r: i, c: 0 }, e: { r: i, c: Object.keys(exportData[0]).length - 1 } };
-      if (!worksheet['!merges']) worksheet['!merges'] = [];
-      worksheet['!merges'].push(merge);
-    }
+    heading.forEach((row, index) => {
+      const excelRow = worksheet.addRow(row);
+      excelRow.eachCell((cell) => {
+        cell.font = { bold: true };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+      worksheet.mergeCells(`A${index + 1}:${String.fromCharCode(65 + headers.length - 1)}${index + 1}`);
+    });
 
-    // Style headings to be bold and centered
-    for (let i = 0; i < heading.length - 1; i++) {
-      for (let j = 0; j <= Object.keys(exportData[0]).length - 1; j++) {
-        const cellAddress = XLSX.utils.encode_cell({ r: i, c: j });
-        if (!worksheet[cellAddress]) continue;
-        if (!worksheet[cellAddress].s) worksheet[cellAddress].s = {};
-        worksheet[cellAddress].s = {
-          font: { bold: true },
-          alignment: { vertical: 'center', horizontal: 'center' },
-        };
-      }
-    }
+    worksheet.addRow(headers).eachCell((cell) => {
+      cell.font = { bold: true };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
 
-    // Add the worksheet to the workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Report Data');
+    // Add data rows
+    reportData.forEach((item) => {
+      const row = [
+        item.academicYear, item.semester, item.department, item.mentor, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
+        ...(defaulterType === 'latecomers' ? [item.time_in] : []),
+        ...(defaulterType === 'dresscode' ? [item.observation] : []),
+      ];
+      worksheet.addRow(row).eachCell((cell) => {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+    });
 
-    // Export the workbook as an Excel file
-    XLSX.writeFile(workbook, filename);
+    // Adjust column widths
+    worksheet.columns = [
+      { width: 20 }, // Academic Year
+      { width: 10 }, // Semester
+      { width: 20 }, // Department
+      { width: 20 }, // Mentor
+      { width: 10 }, // Year
+      { width: 20 }, // Roll Number
+      { width: 25 }, // Student Name
+      { width: 20 }, // Entry Date
+      ...(defaulterType === 'latecomers' ? [{ width: 15 }] : []), // Time In
+      ...(defaulterType === 'dresscode' ? [{ width: 25 }] : []), // Observation
+    ];
+
+    // Save the workbook
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `Report_${fromDate}_to_${toDate}.xlsx`);
   };
 
   return (
+    <div className='excelcon'>
     <div className="report-display">
       <div>
-        <div>
-          <h2>Velammal College of Engineering and Technology</h2>
-          <h2>(Autonomous)</h2>
-          <h2>Viraganoor, Madurai-625009</h2>
-          <h2>Department of Physical Education</h2>
+        <div style={{ textAlign: 'center', fontWeight: 'bold' }}>
+          <h4>Velammal College of Engineering and Technology</h4>
+          <h4>(Autonomous)</h4>
+          <h4>Viraganoor, Madurai-625009</h4>
+          <h4>Department of Physical Educaton</h4>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px' }}>
           <button onClick={exportToExcel} style={{ marginLeft: 'auto' }}>Print Excel Report</button>
         </div>
-        <h2>Report for {defaulterType} from {formatDate(fromDate)} to {formatDate(toDate)}</h2>
+        <h4 style={{ textAlign: 'center', fontWeight: 'bold' }}>Report for {defaulterType} from {formatDate(fromDate)} to {formatDate(toDate)}</h4>
       </div>
       <table>
         <thead>
@@ -135,7 +144,7 @@ const ReportDisplay = () => {
           ))}
         </tbody>
       </table>
-    </div>
+    </div></div>
   );
 };
 
