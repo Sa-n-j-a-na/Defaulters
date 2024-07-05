@@ -51,15 +51,25 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/mentors', async (req, res) => {
-    const { department, year } = req.query;
+    const { dept: department, year } = req.query; // Read 'dept' as 'department'
+    console.log(department + '    ' + year);
 
     try {
         await client.connect();
         const database = client.db('defaulterTrackingSystem');
         const mentors = database.collection('mentor_db');
-        const query = { department, year };
+        
+        // Construct query based on provided parameters
+        const query = {};
+        if (department) {
+            query.dept = department; // Adjust to 'dept' if your collection uses 'dept' field
+        }
+        if (year) {
+            query.year = year;
+        }
+        
         const mentorsList = await mentors.find(query).toArray();
-
+        console.log(mentorsList);
         res.status(200).json(mentorsList);
     } catch (e) {
         console.error(e);
@@ -68,6 +78,7 @@ app.get('/mentors', async (req, res) => {
         await client.close();
     }
 });
+
 
 app.post('/latecomers', async (req, res) => {
     const formData = req.body;
