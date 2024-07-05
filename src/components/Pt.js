@@ -168,6 +168,7 @@ function Pt() {
   const handleGenerateReport = (e) => {
     e.preventDefault();
     navigate(`/report/${defaulterType}/${fromDate}/${toDate}`);
+    console.log('Velammal College of Engineering and Technology (Autonomous)');
     console.log('Generating report from', fromDate, 'to', toDate);
   };
 
@@ -198,12 +199,12 @@ function Pt() {
         <div className="mainContent">
           {currentView === '' && (
             <div className="welcome">
-              Welcome Department of Physical Education 
+              Welcome  to Department of Physical Education 
             </div>
           )}
           {(currentView === 'dresscode' || currentView === 'latecomers') && (
                          <div className="welcomeform">
-          <h2>  Welcome Department of Physical Education </h2> 
+          <h2>  Welcome to Department of Physical Education </h2> 
             <form className="formContainer outlinedForm" onSubmit={handleSubmit}>
               
               <div className='borderContainer'>
@@ -288,7 +289,7 @@ function Pt() {
           )}
           {currentView === 'generateReport' && (
              <div className="welcomeform">
-          <h2>  Welcome Department of Physical Education </h2> 
+          <h2>  Welcome  to Department of Physical Education </h2> 
            
         <form className="formContainer outlinedForm" onSubmit={handleGenerateReport}>
          

@@ -127,8 +127,8 @@ function Home() {
               <div className="login-buttons">
                 <button type="submit" className="login-btn">🔒 Login</button>
                 <button type="button" onClick={handleHome} className="home-btn">🏠 Home</button>
-                <button type="button" onClick={() => alert('Forget Password functionality is not implemented yet.')} className="forget-password-btn">🔑 Forget Password</button>
-              </div>
+                <button type="reset" onClick={() => window.location.reload()} className="reset-btn">🔄 Reset</button>
+                </div>
               {message && <p className="message">{message}</p>}
             </form>
           </div>

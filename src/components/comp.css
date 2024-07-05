@@ -243,7 +243,7 @@ text-overflow: ellipsis;
   width: 100%;
 }
 
-.generate-report-button,.reportDisplay button{
+.generate-report-button,.report-display button{
   background: linear-gradient(to bottom, #66ccff 0%, #0066cc 100%);
   border: none;
   color: white;
@@ -259,7 +259,7 @@ text-overflow: ellipsis;
   margin-top:10px;
 
 }
-.generate-report-button,.reportDisplay button:hover{
+.generate-report-button,.report-display button:hover{
   background: linear-gradient(to bottom, #0066cc 0%, #66ccff 100%);}
 
 .formGroupInline label {
@@ -278,37 +278,30 @@ text-overflow: ellipsis;
   padding-right: 20px;
 }
 
-/*reportDisplay*/
-.reportDisplay {
-  margin: 20px;
+.report-display {
+  padding: 20px;
 }
 
-.reportDisplay h2 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
+.report-display h2 {
   text-align: center;
+  margin: 1px 0;
+  font-weight: bold;
 }
 
-.reportDisplay table {
+.report-display table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
 }
 
-.reportDisplay th, .reportDisplay td {
-  border: 1px solid #7a7a7a;
+.report-display table, th, td {
+  border: 1px solid black;
+}
+
+.report-display th, td {
   padding: 8px;
   text-align: left;
 }
-
-.reportDisplay th {
-  background-color: #f2f2f2;
-}
-
-.reportDisplay tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.reportDisplay tbody tr:hover {
-  background-color: #e9e9e9;
+.report-display{
+  background-color:lavender;
 }
