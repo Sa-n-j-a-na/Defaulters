@@ -19,15 +19,36 @@ const ReportDisplay = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/${defaulterType}?fromDate=${fromDate}&toDate=${toDate}`);
-        let data = await response.json();
+        let data = [];
 
-        // Sort data by department (alphabetically) and year (descending)
-        data.sort((a, b) => {
-          if (a.department < b.department) return -1;
-          if (a.department > b.department) return 1;
-          // If departments are the same, sort by year descending
-          return b.year.localeCompare(a.year); // Assuming year is a string like 'I', 'II', 'III', 'IV'
+        if (defaulterType === 'both') {
+          const latecomersResponse = await fetch(`http://localhost:5000/latecomers?fromDate=${fromDate}&toDate=${toDate}`);
+          const dresscodeResponse = await fetch(`http://localhost:5000/dresscode?fromDate=${fromDate}&toDate=${toDate}`);
+          
+          const latecomersData = await latecomersResponse.json();
+          const dresscodeData = await dresscodeResponse.json();
+
+          data = [
+            { type: 'latecomers', data: latecomersData },
+            { type: 'dresscode', data: dresscodeData }
+          ];
+        } else {
+          const response = await fetch(`http://localhost:5000/${defaulterType}?fromDate=${fromDate}&toDate=${toDate}`);
+          data = [{ type: defaulterType, data: await response.json() }];
+        }
+
+        data.forEach(({ data }) => {
+          // Sort each data set by entry date
+          data.sort((a, b) => new Date(a.entryDate) - new Date(b.entryDate));
+
+          // Sort each date's data by department (alphabetically) and year (descending)
+          data.sort((a, b) => {
+            const dateComparison = new Date(a.entryDate) - new Date(b.entryDate);
+            if (dateComparison !== 0) return dateComparison;
+            if (a.department < b.department) return -1;
+            if (a.department > b.department) return 1;
+            return b.year.localeCompare(a.year); // Assuming year is a string like 'I', 'II', 'III', 'IV'
+          });
         });
 
         setReportData(data);
@@ -42,70 +63,98 @@ const ReportDisplay = () => {
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Report Data');
-
-    // Add heading rows
-    const heading = [
+  
+    // Add college headers
+    const collegeHeaders = [
       ["Velammal College of Engineering and Technology"],
       ["(Autonomous)"],
       ["Viraganoor, Madurai-625009"],
       ["Department of Physical Education"],
-      [`Report for ${defaulterType} from ${formatDate(fromDate)} to ${formatDate(toDate)}`],
+      [`Defaulters from ${formatDate(fromDate)} to ${formatDate(toDate)}`],
       [], // Empty row for spacing
     ];
-
-    // Add header row
-    const headers = [
-      'Academic Year', 'Semester', 'Department', 'Mentor', 'Year', 'Roll Number', 'Student Name', 'Entry Date',
-      ...(defaulterType === 'latecomers' ? ['Time In'] : []),
-      ...(defaulterType === 'dresscode' ? ['Observation'] : []),
-    ];
-
-    heading.forEach((row, index) => {
+  
+    // Add college headers with merged cells up to column J
+    let rowIndex = 1;
+    collegeHeaders.forEach(row => {
       const excelRow = worksheet.addRow(row);
-      excelRow.eachCell((cell) => {
+      excelRow.eachCell(cell => {
         cell.font = { bold: true };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
-      worksheet.mergeCells(`A${index + 1}:${String.fromCharCode(65 + headers.length - 1)}${index + 1}`);
+      worksheet.mergeCells(`A${rowIndex}:J${rowIndex}`); // Merge up to column J
+      rowIndex++;
     });
-
-    worksheet.addRow(headers).eachCell((cell) => {
-      cell.font = { bold: true };
-      cell.alignment = { vertical: 'middle', horizontal: 'center' };
-    });
-
-    // Add data rows
-    reportData.forEach((item) => {
-      const row = [
-        item.academicYear, item.semester, item.department, item.mentor, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
-        ...(defaulterType === 'latecomers' ? [item.time_in] : []),
-        ...(defaulterType === 'dresscode' ? [item.observation] : []),
+  
+    worksheet.addRow([]); // Empty row for spacing
+  
+    // Function to add headers and data for each defaulter type
+    const addHeadersAndData = (type, data) => {
+      // Add headers
+      const headers = [
+        'S.No', 'Academic Year', 'Semester', 'Department', 'Mentor', 'Year', 'Roll Number', 'Student Name', 'Entry Date',
+        ...(type === 'latecomers' ? ['Time In'] : []),
+        ...(type === 'dresscode and discipline' ? ['Observation'] : []),
+        
       ];
-      worksheet.addRow(row).eachCell((cell) => {
+  
+      worksheet.addRow([`${type}`]); // Add section title
+      
+      rowIndex++;
+  
+      worksheet.addRow(headers); // Add headers row
+      worksheet.lastRow.eachCell(cell => {
+        cell.font = { bold: true };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
+  
+      // Add data rows
+      data.forEach((item, index) => {
+        const row = [
+          index + 1, // S.No
+          item.academicYear, item.semester, item.department, item.mentor, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
+          ...(type === 'latecomers' ? [item.time_in] : []),
+          
+        ];
+        worksheet.addRow(row).eachCell(cell => {
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        });
+      });
+  
+      worksheet.addRow([]); // Empty row for spacing
+      rowIndex++;
+    };
+  
+    // Add data for each defaulter type
+    reportData.forEach(({ type, data }) => {
+      addHeadersAndData(type, data);
     });
-
-    // Adjust column widths
-    worksheet.columns = [
-      { width: 20 }, // Academic Year
-      { width: 10 }, // Semester
-      { width: 20 }, // Department
-      { width: 20 }, // Mentor
-      { width: 10 }, // Year
-      { width: 20 }, // Roll Number
-      { width: 25 }, // Student Name
-      { width: 20 }, // Entry Date
-      ...(defaulterType === 'latecomers' ? [{ width: 15 }] : []), // Time In
-      ...(defaulterType === 'dresscode' ? [{ width: 25 }] : []), // Observation
-    ];
-
-    // Save the workbook
+  
+    // Auto resize columns based on content
+    worksheet.columns.forEach(column => {
+      let maxLength = 0;
+      column.eachCell({ includeEmpty: true }, cell => {
+        const columnLength = cell.value ? cell.value.toString().length : 0;
+        if (columnLength > maxLength) {
+          maxLength = columnLength;
+        }
+      });
+      column.width = Math.min(maxLength + 1, 20); // Minimum width of 25
+    });
+  
+    // Center align the first six lines
+    for (let i = 1; i <= 5; i++) {
+      worksheet.getRow(i).eachCell(cell => {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+    }
+  
+    // Generate Excel file and save
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     saveAs(blob, `Report_${fromDate}_to_${toDate}.xlsx`);
   };
-
+  
   return (
     <div className='excelcon'>
       <div className="report-display">
@@ -114,45 +163,52 @@ const ReportDisplay = () => {
             <h4>Velammal College of Engineering and Technology</h4>
             <h4>(Autonomous)</h4>
             <h4>Viraganoor, Madurai-625009</h4>
-            <h4>Department of Physical Educaton</h4>
+            <h4>Department of Physical Education</h4>
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px' }}>
             <button onClick={exportToExcel} style={{ marginLeft: 'auto' }}>Print Excel Report</button>
           </div>
-          <h4 style={{ textAlign: 'center', fontWeight: 'bold' }}>Report for {defaulterType} from {formatDate(fromDate)} to {formatDate(toDate)}</h4>
+          <h4 style={{ textAlign: 'center', fontWeight: 'bold' }}>Report for {defaulterType} {fromDate === toDate ? `on ${formatDate(fromDate)}` : `from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</h4>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Academic Year</th>
-              <th>Semester</th>
-              <th>Department</th>
-              <th>Mentor</th>
-              <th>Year</th>
-              <th>Roll Number</th>
-              <th>Student Name</th>
-              <th>Entry Date</th>
-              {defaulterType === 'latecomers' && <th>Time In</th>}
-              {defaulterType === 'dresscode' && <th>Observation</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {reportData.map((item, index) => (
-              <tr key={index}>
-                <td>{item.academicYear}</td>
-                <td>{item.semester}</td>
-                <td>{item.department}</td>
-                <td>{item.mentor}</td>
-                <td>{item.year}</td>
-                <td>{item.rollNumber}</td>
-                <td>{item.studentName}</td>
-                <td>{formatDate(item.entryDate)}</td>
-                {defaulterType === 'latecomers' && <td>{item.time_in}</td>}
-                {defaulterType === 'dresscode' && <td>{item.observation}</td>}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {reportData.map(({ type, data }, index) => (
+          <div key={type}>
+            <h5 style={{ fontWeight: 'bold' }}>{type}</h5>
+            <table>
+              <thead>
+                <tr>
+                  <th>S.No</th>
+                  <th>Academic Year</th>
+                  <th>Semester</th>
+                  <th>Department</th>
+                  <th>Mentor</th>
+                  <th>Year</th>
+                  <th>Roll Number</th>
+                  <th>Student Name</th>
+                  <th>Entry Date</th>
+                  {type === 'latecomers' && <th>Time In</th>}
+                  {type === 'dresscode' && <th>Observation</th>}
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((item, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{item.academicYear}</td>
+                    <td>{item.semester}</td>
+                    <td>{item.department}</td>
+                    <td>{item.mentor}</td>
+                    <td>{item.year}</td>
+                    <td>{item.rollNumber}</td>
+                    <td>{item.studentName}</td>
+                    <td>{formatDate(item.entryDate)}</td>
+                    {type === 'latecomers' && <td>{item.time_in}</td>}
+                    {type === 'dresscode' && <td>{item.observation}</td>}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
       </div>
     </div>
   );
