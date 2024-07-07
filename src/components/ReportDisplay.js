@@ -64,13 +64,19 @@ const ReportDisplay = () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Report Data');
   
+    const formattedFromDate = formatDate(fromDate);
+    const formattedToDate = formatDate(toDate);
+    const dateRangeText = new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? 
+      `Defaulters on ${formattedFromDate}` : 
+      `Defaulters from ${formattedFromDate} to ${formattedToDate}`;
+  
     // Add college headers
     const collegeHeaders = [
       ["Velammal College of Engineering and Technology"],
       ["(Autonomous)"],
       ["Viraganoor, Madurai-625009"],
       ["Department of Physical Education"],
-      [`Defaulters from ${formatDate(fromDate)} to ${formatDate(toDate)}`],
+      [dateRangeText],
       [], // Empty row for spacing
     ];
   
@@ -90,17 +96,30 @@ const ReportDisplay = () => {
   
     // Function to add headers and data for each defaulter type
     const addHeadersAndData = (type, data) => {
+      const formattedFromDate = formatDate(fromDate);
+      const formattedToDate = formatDate(toDate);
+      const dateRangeText = new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? 
+        `on ${formattedFromDate}` : 
+        `from ${formattedFromDate} to ${formattedToDate}`;
+  
+      // Add section title with formatting
+      const headingRow = worksheet.addRow([`${type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'} ${dateRangeText}`]);
+      headingRow.eachCell(cell => {
+        cell.font = { bold: true };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+  
+      rowIndex++;
+  
+      // Add empty row after heading
+      worksheet.addRow([]);
+  
       // Add headers
       const headers = [
         'S.No', 'Academic Year', 'Semester', 'Department', 'Mentor', 'Year', 'Roll Number', 'Student Name', 'Entry Date',
         ...(type === 'latecomers' ? ['Time In'] : []),
-        ...(type === 'dresscode and discipline' ? ['Observation'] : []),
-        
+        ...(type === 'dresscode' ? ['Observation'] : []),
       ];
-  
-      worksheet.addRow([`${type}`]); // Add section title
-      
-      rowIndex++;
   
       worksheet.addRow(headers); // Add headers row
       worksheet.lastRow.eachCell(cell => {
@@ -114,14 +133,15 @@ const ReportDisplay = () => {
           index + 1, // S.No
           item.academicYear, item.semester, item.department, item.mentor, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
           ...(type === 'latecomers' ? [item.time_in] : []),
-          
+          ...(type === 'dresscode' ? [item.observation] : []),
         ];
         worksheet.addRow(row).eachCell(cell => {
           cell.alignment = { vertical: 'middle', horizontal: 'center' };
         });
       });
   
-      worksheet.addRow([]); // Empty row for spacing
+      // Add empty row after data
+      worksheet.addRow([]);
       rowIndex++;
     };
   
@@ -155,6 +175,7 @@ const ReportDisplay = () => {
     saveAs(blob, `Report_${fromDate}_to_${toDate}.xlsx`);
   };
   
+
   return (
     <div className='excelcon'>
       <div className="report-display">
@@ -168,11 +189,11 @@ const ReportDisplay = () => {
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px' }}>
             <button onClick={exportToExcel} style={{ marginLeft: 'auto' }}>Print Excel Report</button>
           </div>
-          <h4 style={{ textAlign: 'center', fontWeight: 'bold' }}>Report for {defaulterType} {fromDate === toDate ? `on ${formatDate(fromDate)}` : `from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</h4>
+          <h4 style={{ textAlign: 'center', fontWeight: 'bold' }}>Defaulters {new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? `on ${formatDate(fromDate)}` : `from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</h4>
         </div>
-        {reportData.map(({ type, data }, index) => (
-          <div key={type}>
-            <h5 style={{ fontWeight: 'bold' }}>{type}</h5>
+        {reportData.map(({ type, data }) => (
+          <div key={type} className="table-container">
+            <h5 className="table-heading">{type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'} {new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? `on ${formatDate(fromDate)}` : `from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</h5>
             <table>
               <thead>
                 <tr>

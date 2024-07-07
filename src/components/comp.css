@@ -316,3 +316,11 @@ text-overflow: ellipsis;
   margin: 20px auto; /* Center the container horizontally */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+.table-heading {
+  margin-top: 20px; /* Adjust the margin as needed */
+  font-weight: bold;
+}
+
+.table-container {
+  margin-bottom: 40px; /* Adjust the margin as needed */
+}
