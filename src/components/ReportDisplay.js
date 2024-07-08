@@ -63,13 +63,13 @@ const ReportDisplay = () => {
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Report Data');
-  
+
     const formattedFromDate = formatDate(fromDate);
     const formattedToDate = formatDate(toDate);
     const dateRangeText = new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? 
       `Defaulters on ${formattedFromDate}` : 
       `Defaulters from ${formattedFromDate} to ${formattedToDate}`;
-  
+
     // Add college headers
     const collegeHeaders = [
       ["Velammal College of Engineering and Technology"],
@@ -79,7 +79,7 @@ const ReportDisplay = () => {
       [dateRangeText],
       [], // Empty row for spacing
     ];
-  
+
     // Add college headers with merged cells up to column J
     let rowIndex = 1;
     collegeHeaders.forEach(row => {
@@ -91,9 +91,9 @@ const ReportDisplay = () => {
       worksheet.mergeCells(`A${rowIndex}:J${rowIndex}`); // Merge up to column J
       rowIndex++;
     });
-  
+
     worksheet.addRow([]); // Empty row for spacing
-  
+
     // Function to add headers and data for each defaulter type
     const addHeadersAndData = (type, data) => {
       const formattedFromDate = formatDate(fromDate);
@@ -101,31 +101,32 @@ const ReportDisplay = () => {
       const dateRangeText = new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? 
         `on ${formattedFromDate}` : 
         `from ${formattedFromDate} to ${formattedToDate}`;
-  
+
       // Add section title with formatting
       const headingRow = worksheet.addRow([`${type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'} ${dateRangeText}`]);
       headingRow.eachCell(cell => {
         cell.font = { bold: true };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
-  
+
       rowIndex++;
-  
+
       // Add empty row after heading
       worksheet.addRow([]);
-  
+
       // Add headers
       const headers = [
         'S.No', 'Academic Year', 'Semester', 'Department', 'Mentor', 'Year', 'Roll Number', 'Student Name', 'Entry Date',
         ...(type === 'latecomers' ? ['Time In'] : []),
         ...(type === 'dresscode' ? ['Observation'] : []),
       ];
-  
+
       worksheet.addRow(headers); // Add headers row
       worksheet.lastRow.eachCell(cell => {
         cell.font = { bold: true };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
-  
+
       // Add data rows
       data.forEach((item, index) => {
         const row = [
@@ -134,21 +135,25 @@ const ReportDisplay = () => {
           ...(type === 'latecomers' ? [item.time_in] : []),
           ...(type === 'dresscode' ? [item.observation] : []),
         ];
-        worksheet.addRow(row).eachCell(cell => {
-          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        worksheet.addRow(row).eachCell((cell, colNumber) => {
+          if (type === 'dresscode' && [5, 7, 8, 10].includes(colNumber)) {
+            cell.alignment = { vertical: 'middle', horizontal: 'left' }; // Left align for specific columns
+          }  else {
+            cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others
+          }
         });
       });
-  
+
       // Add empty row after data
       worksheet.addRow([]);
       rowIndex++;
     };
-  
+
     // Add data for each defaulter type in the order: dresscode first, then latecomers
     reportData.forEach(({ type, data }) => {
       addHeadersAndData(type, data);
     });
-  
+
     // Auto resize columns based on content
     worksheet.columns.forEach(column => {
       let maxLength = 0;
@@ -160,20 +165,19 @@ const ReportDisplay = () => {
       });
       column.width = Math.min(maxLength + 1, 20); // Minimum width of 25
     });
-  
+
     // Center align the first six lines
     for (let i = 1; i <= 5; i++) {
       worksheet.getRow(i).eachCell(cell => {
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
     }
-  
+
     // Generate Excel file and save
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     saveAs(blob, `Report_${fromDate}_to_${toDate}.xlsx`);
   };
-  
 
   return (
     <div className='excelcon'>
@@ -192,8 +196,8 @@ const ReportDisplay = () => {
         </div>
         {reportData.map(({ type, data }) => (
           <div key={type} className="table-container">
-            <h5 className="table-heading">{type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'} {new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? `on ${formatDate(fromDate)}` : `from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</h5>
-            <table>
+            <h5 className="table-heading">{type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'}</h5>
+            <table className="defaulters-table">
               <thead>
                 <tr>
                   <th>S.No</th>
