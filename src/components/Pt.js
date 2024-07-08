@@ -257,7 +257,7 @@ function Pt() {
                       {mentors.map((mentor) => (
                         <option key={mentor._id} value={mentor.name}>{mentor.name}</option>
                       ))}
-                      <option value="Enter">Enter</option> {/* New option for custom mentor name */}
+                      <option value="Enter">Type Mentor Name</option> {/* New option for custom mentor name */}
                     </select>
                   </div>
                   {selectedMentor === 'Enter' && (

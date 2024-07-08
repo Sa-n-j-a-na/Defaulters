@@ -21,7 +21,7 @@ function Mentor() {
         </div>
         <div className="mainContent">
           <div className="welcome">
-            Welcome "{username}" (MENTOR)
+            Welcome To Department computer Science And Engineering
           </div>
         </div>
       </div>
