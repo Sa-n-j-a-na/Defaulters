@@ -9,6 +9,15 @@ const port = 5000;
 const uri = "mongodb://127.0.0.1:27017";
 const client = new MongoClient(uri);
 
+let mongoClient = null;
+
+const connectToDatabase = async () => {
+    if (!mongoClient) {
+        mongoClient = await client.connect();
+    }
+    return mongoClient;
+};
+
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -20,7 +29,7 @@ app.post('/login', async (req, res) => {
     }
 
     try {
-        await client.connect();
+        const client = await connectToDatabase();
         const database = client.db('defaulterTrackingSystem');
         
         let collection;
@@ -45,8 +54,6 @@ app.post('/login', async (req, res) => {
     } catch (e) {
         console.error(e);
         res.status(500).json({ message: 'Internal server error' });
-    } finally {
-        await client.close();
     }
 });
 
@@ -55,7 +62,7 @@ app.get('/mentors', async (req, res) => {
     console.log(department + '    ' + year);
 
     try {
-        await client.connect();
+        const client = await connectToDatabase();
         const database = client.db('defaulterTrackingSystem');
         const mentors = database.collection('mentor_db');
         
@@ -74,18 +81,15 @@ app.get('/mentors', async (req, res) => {
     } catch (e) {
         console.error(e);
         res.status(500).json({ message: 'Internal server error' });
-    } finally {
-        await client.close();
     }
 });
-
 
 app.post('/latecomers', async (req, res) => {
     const formData = req.body;
     console.log('Received latecomers data:', formData); // Check if data is received correctly
 
     try {
-        await client.connect();
+        const client = await connectToDatabase();
         const database = client.db('defaulterTrackingSystem');
         const latecomersCollection = database.collection('latecomers_db');
 
@@ -96,18 +100,15 @@ app.post('/latecomers', async (req, res) => {
     } catch (error) {
         console.error("Error submitting latecomers data:", error);
         res.status(500).json({ message: 'Failed to submit latecomers data' });
-    } finally {
-        await client.close();
     }
 });
-
 
 app.post('/dresscode', async (req, res) => {
     const formData = req.body;
     console.log('Received dresscode data:', formData); // Check if data is received correctly
 
     try {
-        await client.connect();
+        const client = await connectToDatabase();
         const database = client.db('defaulterTrackingSystem');
         const disciplineCollection = database.collection('discipline_db');
 
@@ -118,8 +119,6 @@ app.post('/dresscode', async (req, res) => {
     } catch (error) {
         console.error("Error submitting discipline data:", error);
         res.status(500).json({ message: 'Failed to submit discipline data' });
-    } finally {
-        await client.close();
     }
 });
 
@@ -127,7 +126,7 @@ app.get('/:defaulterType', async (req, res) => {
     const { defaulterType } = req.params;
     const { fromDate, toDate } = req.query;
     try {
-        await client.connect();
+        const client = await connectToDatabase();
         const database = client.db('defaulterTrackingSystem');
         let collection;
 
@@ -138,8 +137,8 @@ app.get('/:defaulterType', async (req, res) => {
         } else {
             return res.status(400).json({ message: 'Invalid defaulterType' });
         }
-        const startDate = new Date(`${fromDate}T00:00:00.000Z`).toISOString();;
-        const endDate = new Date(`${toDate}T23:59:59.999Z`).toISOString();;
+        const startDate = new Date(`${fromDate}T00:00:00.000Z`).toISOString();
+        const endDate = new Date(`${toDate}T23:59:59.999Z`).toISOString();
   
         const query = {
             entryDate: {
@@ -154,13 +153,16 @@ app.get('/:defaulterType', async (req, res) => {
     } catch (error) {
         console.error('Error fetching report data:', error);
         res.status(500).json({ message: 'Internal server error' });
-    } finally {
-        await client.close();
     }
 });
 
-
-
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
+});
+
+process.on('SIGINT', async () => {
+    if (mongoClient) {
+        await mongoClient.close();
+    }
+    process.exit(0);
 });
