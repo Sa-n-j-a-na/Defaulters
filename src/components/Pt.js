@@ -176,7 +176,7 @@ function Pt() {
   return (
     <div className="compContainer">
       <div className="compHeader">
-        <img src="/image.png" alt="VCET Logo" />
+        <img src="image.png" alt="VCET Logo" />
         <h1>VELAMMAL COLLEGE OF ENGINEERING AND TECHNOLOGY <br /><span>(Autonomous)</span></h1>
         <a href="/">Sign Out</a>
       </div>
