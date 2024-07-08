@@ -21,7 +21,7 @@ function Hod() {
         </div>
         <div className="mainContent">
           <div className="welcome">
-            Welcome "{username}" (HOD)
+            Welcome To Department Of Computer Science And Engineering
           </div>
         </div>
       </div>
