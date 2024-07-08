@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import AuthContext from './AuthContext';
 import './App.css';
 
 function Home() {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -24,6 +26,7 @@ function Home() {
       if (response && response.data) {
         setMessage(response.data.message);
         if (response.data.message === 'Login successful') {
+          login();
           if (selectedRole === 'pe') {
             navigate('/pt', { state: { username } });
           } else if (selectedRole === 'hod') {
@@ -93,7 +96,6 @@ function Home() {
               <div className="radio-group">
                 <label className="login-as-label">Login as:</label>
                 <label>
-                  
                   <input
                     type="radio"
                     value="pe"
@@ -114,7 +116,7 @@ function Home() {
                   HOD
                 </label>
                 <label>
-                <input
+                  <input
                     type="radio"
                     value="mentor"
                     checked={selectedRole === 'mentor'}
@@ -128,7 +130,7 @@ function Home() {
                 <button type="submit" className="login-btn">🔒 Login</button>
                 <button type="button" onClick={handleHome} className="home-btn">🏠 Home</button>
                 <button type="reset" onClick={() => window.location.reload()} className="reset-btn">🔄 Reset</button>
-                </div>
+              </div>
               {message && <p className="message">{message}</p>}
             </form>
           </div>
