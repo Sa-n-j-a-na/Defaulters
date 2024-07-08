@@ -22,15 +22,15 @@ const ReportDisplay = () => {
         let data = [];
 
         if (defaulterType === 'both') {
-          const latecomersResponse = await fetch(`http://localhost:5000/latecomers?fromDate=${fromDate}&toDate=${toDate}`);
           const dresscodeResponse = await fetch(`http://localhost:5000/dresscode?fromDate=${fromDate}&toDate=${toDate}`);
+          const latecomersResponse = await fetch(`http://localhost:5000/latecomers?fromDate=${fromDate}&toDate=${toDate}`);
           
-          const latecomersData = await latecomersResponse.json();
           const dresscodeData = await dresscodeResponse.json();
+          const latecomersData = await latecomersResponse.json();
 
           data = [
-            { type: 'latecomers', data: latecomersData },
-            { type: 'dresscode', data: dresscodeData }
+            { type: 'dresscode', data: dresscodeData },
+            { type: 'latecomers', data: latecomersData }
           ];
         } else {
           const response = await fetch(`http://localhost:5000/${defaulterType}?fromDate=${fromDate}&toDate=${toDate}`);
@@ -106,7 +106,6 @@ const ReportDisplay = () => {
       const headingRow = worksheet.addRow([`${type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'} ${dateRangeText}`]);
       headingRow.eachCell(cell => {
         cell.font = { bold: true };
-       
       });
   
       rowIndex++;
@@ -145,7 +144,7 @@ const ReportDisplay = () => {
       rowIndex++;
     };
   
-    // Add data for each defaulter type
+    // Add data for each defaulter type in the order: dresscode first, then latecomers
     reportData.forEach(({ type, data }) => {
       addHeadersAndData(type, data);
     });
