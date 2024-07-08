@@ -227,15 +227,15 @@ function Pt() {
                 <label htmlFor="department">Department:</label>
                 <select id="department" name="department" onChange={(e) => setSelectedDepartment(e.target.value)} required>
                   <option value="">--Select--</option>
+                  <option value="AIDS">AIDS</option>
+                  <option value="CIVIL">CIVIL</option>
                   <option value="CSE">CSE</option>
+                  <option value="CYBERSECURITY">CYBER SECURITY</option>
                   <option value="ECE">ECE</option>
                   <option value="EEE">EEE</option>
                   <option value="IT">IT</option>
-                  <option value="AIDS">AIDS</option>
-                  <option value="CIVIL">CIVIL</option>
-                  <option value="MECH">MECH</option>
-                  <option value="CYBERSECURITY">CYBER SECURITY</option>
                   <option value="MBA">MBA</option>
+                  <option value="MECH">MECH</option>
                 </select>
               </div>
               <div className="formGroup">
