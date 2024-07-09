@@ -45,9 +45,12 @@ app.post('/login', async (req, res) => {
 
         const query = { username, password };
         const user = await collection.findOne(query);
+        const { dept } = user;
+
+        console.log(dept);
 
         if (user) {
-            res.status(200).json({ message: 'Login successful', user });
+            res.status(200).json({ message: 'Login successful', user ,dept});
         } else {
             res.status(401).json({ message: 'Invalid username or password' });
         }
