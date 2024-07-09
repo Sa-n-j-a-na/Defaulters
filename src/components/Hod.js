@@ -7,7 +7,10 @@ function Hod() {
   const location = useLocation();
   const { dept: initialDept } = location.state || {};
   
-  const [dept, setDept] = useState('Department');
+  const [dept, setDept] = useState(() => {
+    // Retrieve dept from localStorage if available
+    return localStorage.getItem('dept') || 'Department';
+  });
   const [currentView, setCurrentView] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
@@ -16,6 +19,8 @@ function Hod() {
   useEffect(() => {
     if (initialDept) {
       setDept(initialDept);
+      // Store the dept in localStorage
+      localStorage.setItem('dept', initialDept);
     }
   }, [initialDept]);
 
@@ -31,12 +36,17 @@ function Hod() {
     setCurrentView(view);
   };
 
+  const handleSignOut = () => {
+    localStorage.removeItem('dept'); // Clear dept from localStorage on sign out
+    navigate('/');
+  };
+
   return (
     <div className="compContainer">
       <div className="compHeader">
         <img src="image.png" alt="VCET Logo" />
         <h1>VELAMMAL COLLEGE OF ENGINEERING AND TECHNOLOGY <br /><span>(Autonomous)</span></h1>
-        <a href="/">Sign Out</a>
+        <a href="/" onClick={handleSignOut}>Sign Out</a>
       </div>
       <div className="contentWrapper">
         <div className="sidebar">
