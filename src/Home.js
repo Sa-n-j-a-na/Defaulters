@@ -24,15 +24,16 @@ function Home() {
     try {
       const response = await axios.post('http://localhost:5000/login', { username, password, role: selectedRole });
       if (response && response.data) {
+        const { dept } = response.data;
         setMessage(response.data.message);
         if (response.data.message === 'Login successful') {
           login();
           if (selectedRole === 'pe') {
             navigate('/pt', { state: { username } });
           } else if (selectedRole === 'hod') {
-            navigate('/hod', { state: { username } });
+            navigate('/hod', { state: { username ,dept} });
           } else if (selectedRole === 'mentor') {
-            navigate('/mentor', { state: { username } });
+            navigate('/mentor', { state: { username ,dept} });
           }
         }
       } else {
