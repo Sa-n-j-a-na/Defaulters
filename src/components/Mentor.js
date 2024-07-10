@@ -1,44 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './comp.css';
+import ReportDisplayForMentor from './ReportDisplayForMentor';
 
 function Mentor() {
   const navigate = useNavigate();
   const location = useLocation();
   const { dept: initialDept } = location.state || {};
-  
-  const [dept, setDept] = useState(() => {
-    // Retrieve dept from localStorage if available
-    return localStorage.getItem('dept') || 'Department';
-  });
-  const [currentView, setCurrentView] = useState('');
+  const { mentorName: initialMentorName } = location.state || {};
+
+  const [dept, setDept] = useState(() => localStorage.getItem('dept') || 'Department');
+  const [mentorName, setMentorName] = useState(() => localStorage.getItem('mentorName') || 'mentor');
+  const [defaulterType, setDefaulterType] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-  const [defaulterType, setDefaulterType] = useState('');
+  const [currentView, setCurrentView] = useState('');
 
   useEffect(() => {
     if (initialDept) {
       setDept(initialDept);
-      // Store the dept in localStorage
       localStorage.setItem('dept', initialDept);
     }
+    if (initialMentorName) {
+      setMentorName(initialMentorName);
+      localStorage.setItem('mentorName', initialMentorName);
+    }
+    const storedMentorName = localStorage.getItem('mentorName');
+    setMentorName(storedMentorName);
   }, [initialDept]);
 
   const handleGenerateReport = (e) => {
     e.preventDefault();
-    navigate(`/report/${defaulterType}?fromDate=${fromDate}&toDate=${toDate}`, {
-      state: { dept }
-    });
-    console.log('Generating report from', fromDate, 'to', toDate);
-  };
-
-  const handleViewChange = (view) => {
-    setCurrentView(view);
-  };
-
-  const handleSignOut = () => {
-    localStorage.removeItem('dept'); // Clear dept from localStorage on sign out
-    navigate('/');
+    navigate(`/mentorReport/${mentorName}/${defaulterType}/${fromDate}/${toDate}`);
   };
 
   return (
@@ -46,19 +39,18 @@ function Mentor() {
       <div className="compHeader">
         <img src="image.png" alt="VCET Logo" />
         <h1>VELAMMAL COLLEGE OF ENGINEERING AND TECHNOLOGY <br /><span>(Autonomous)</span></h1>
-        <a href="/" onClick={handleSignOut}>Sign Out</a>
+        <a href="/" onClick={() => { localStorage.removeItem('dept'); localStorage.removeItem('mentorName'); }}>Sign Out</a>
       </div>
       <div className="contentWrapper">
         <div className="sidebar">
           <h2>Menus</h2>
           <a href="/mentor">Home</a>
-          <a href="#generateReport" onClick={() => handleViewChange('generateReport')}>Generate Report</a>
+          <a href="#generateReport" onClick={() => setCurrentView('generateReport')}>Generate Report</a>
         </div>
         <div className="mainContent">
           <div className="welcome">
             Welcome to the Department of {dept}
           </div>
-
           {currentView === 'generateReport' && (
             <div className="welcomeform">
               <form className="formContainer outlinedForm" onSubmit={handleGenerateReport}>
@@ -86,6 +78,9 @@ function Mentor() {
                 </div>
               </form>
             </div>
+          )}
+          {currentView === 'report' && (
+            <ReportDisplayForMentor mentorName={mentorName} defaulterType={defaulterType} fromDate={fromDate} toDate={toDate} />
           )}
         </div>
       </div>

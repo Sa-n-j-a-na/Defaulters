@@ -6,9 +6,8 @@ function Hod() {
   const navigate = useNavigate();
   const location = useLocation();
   const { dept: initialDept } = location.state || {};
-  
+
   const [dept, setDept] = useState(() => {
-    // Retrieve dept from localStorage if available
     return localStorage.getItem('dept') || 'Department';
   });
   const [currentView, setCurrentView] = useState('');
@@ -19,17 +18,16 @@ function Hod() {
   useEffect(() => {
     if (initialDept) {
       setDept(initialDept);
-      // Store the dept in localStorage
       localStorage.setItem('dept', initialDept);
     }
   }, [initialDept]);
 
-  const handleGenerateReport = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    navigate(`/report/${defaulterType}?fromDate=${fromDate}&toDate=${toDate}`, {
-      state: { dept }
-    });
-    console.log('Generating report from', fromDate, 'to', toDate);
+    // Assuming you have some logic here to handle form submission and generate the report
+    // After generating the report, navigate to the DefaulterReport page
+
+    navigate(`/defaulterreport/${defaulterType}/${fromDate}/${toDate}`, { state: { dept } });
   };
 
   const handleViewChange = (view) => {
@@ -53,6 +51,7 @@ function Hod() {
           <h2>Menus</h2>
           <a href="/hod">Home</a>
           <a href="#generateReport" onClick={() => handleViewChange('generateReport')}>Generate Report</a>
+          <a href="">Repeated Defaulters</a>
         </div>
         <div className="mainContent">
           <div className="welcome">
@@ -61,7 +60,7 @@ function Hod() {
 
           {currentView === 'generateReport' && (
             <div className="welcomeform">
-              <form className="formContainer outlinedForm" onSubmit={handleGenerateReport}>
+              <form className="formContainer outlinedForm" onSubmit={handleSubmit}>
                 <div className="borderContainer">
                   <div className="formGroup">
                     <label>Defaulters type:</label>
