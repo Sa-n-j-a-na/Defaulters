@@ -42,15 +42,12 @@ app.post('/login', async (req, res) => {
         } else {
             return res.status(403).json({ message: 'Access forbidden for this role' });
         }
-
         const query = { username, password };
         const user = await collection.findOne(query);
-        const { dept } = user;
-
-        console.log(dept);
-
+        console.log(user);
+        const { dept , mentorName } = user;
         if (user) {
-            res.status(200).json({ message: 'Login successful', user ,dept});
+            res.status(200).json({ message: 'Login successful', user ,dept,mentorName});
         } else {
             res.status(401).json({ message: 'Invalid username or password' });
         }
@@ -158,6 +155,40 @@ app.get('/:defaulterType', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+app.get('/mentorReport/:mentorName', async (req, res) => {
+    const { mentorName } = req.params;
+    console.log(mentorName);
+    const { fromDate, toDate } = req.query;
+
+    try {
+        const client = await connectToDatabase();
+        const database = client.db('defaulterTrackingSystem');
+
+        const startDate = new Date(`${fromDate}T00:00:00.000Z`).toISOString();
+        const endDate = new Date(`${toDate}T23:59:59.999Z`).toISOString();
+
+        const query = {
+            entryDate: {
+                $gte: startDate,
+                $lte: endDate
+            },
+            mentor: mentorName
+        };
+
+        const disciplineData = await database.collection('discipline_db').find(query).toArray();
+        const latecomersData = await database.collection('latecomers_db').find(query).toArray();
+
+        const combinedData = [...disciplineData, ...latecomersData];
+
+        res.json(combinedData);
+    } catch (error) {
+        console.error('Error fetching report data:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
