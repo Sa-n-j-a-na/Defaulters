@@ -188,7 +188,177 @@ app.get('/mentorReport/:mentorName', async (req, res) => {
     }
 });
 
+const fetchRepeatedDefaulters = async (type, startDate, endDate) => {
+    try {
+        console.log(`Fetching repeated defaulters (${type}) for dates ${startDate} to ${endDate}`);
 
+        const pipeline = [
+            {
+                $match: {
+                    entryDate: {
+                        $gte: startDate,
+                        $lte: endDate
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: '$rollNumber',
+                    count: { $sum: 1 },
+                    documents: { $push: '$$ROOT' }
+                }
+            },
+            {
+                $match: {
+                    count: { $gt: 1 }
+                }
+            },
+            {
+                $unwind: '$documents'
+            },
+            {
+                $replaceRoot: { newRoot: '$documents' }
+            }
+        ];
+
+        let collectionName = '';
+        if (type === 'dresscode') {
+            collectionName = 'discipline_db';
+        } else if (type === 'latecomers') {
+            collectionName = 'latecomers_db';
+        }
+
+        const client = await connectToDatabase();
+        const database = client.db('defaulterTrackingSystem');
+        const result = await database.collection(collectionName).aggregate(pipeline).toArray();
+
+        console.log(`Fetched ${result.length} documents for ${type}`);
+
+        return result;
+    } catch (error) {
+        console.error(`Error fetching repeated defaulters (${type}):`, error);
+        return [];
+    }
+};
+
+
+app.get('/repeateddefaultersreport/:defaulterType/:fromDate/:toDate', async (req, res) => {
+    const { defaulterType, fromDate, toDate } = req.params;
+
+    try {
+        // Convert dates to ISO format strings
+        const startDate = new Date(`${fromDate}T00:00:00.000Z`).toISOString();
+        const endDate = new Date(`${toDate}T23:59:59.999Z`).toISOString();
+
+        let disciplineData = [];
+        let latecomersData = [];
+
+        // Fetch data based on defaulterType
+        if (defaulterType === 'dresscode' || defaulterType === 'both') {
+            disciplineData = await fetchRepeatedDefaulters('dresscode', startDate, endDate);
+        }
+
+        if (defaulterType === 'latecomers' || defaulterType === 'both') {
+            latecomersData = await fetchRepeatedDefaulters('latecomers', startDate, endDate);
+        }
+
+        const combinedData = {
+            dresscode: disciplineData,
+            latecomers: latecomersData
+        };
+
+        console.log(combinedData); // Log combined data for debugging
+        res.json(combinedData);
+    } catch (error) {
+        console.error('Error fetching repeated defaulters:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+const fetchRepeatedDefaultersByMentor = async (defaulterType, mentorName, startDate, endDate) => {
+    try {
+        const pipeline = [
+            {
+                $match: {
+                    entryDate: {
+                        $gte: startDate,
+                        $lte: endDate
+                    },
+                    mentor: mentorName
+                }
+            },
+            {
+                $group: {
+                    _id: '$rollNumber',
+                    count: { $sum: 1 },
+                    documents: { $push: '$$ROOT' }
+                }
+            },
+            {
+                $match: {
+                    count: { $gt: 1 }
+                }
+            },
+            {
+                $unwind: '$documents'
+            },
+            {
+                $replaceRoot: { newRoot: '$documents' }
+            }
+        ];
+
+        let collectionName = '';
+        if (defaulterType === 'dresscode') {
+            collectionName = 'discipline_db';
+        } else if (defaulterType === 'latecomers') {
+            collectionName = 'latecomers_db';
+        }
+
+        const client = await connectToDatabase();
+        const database = client.db('defaulterTrackingSystem');
+        const result = await database.collection(collectionName).aggregate(pipeline).toArray();
+
+        console.log(`Fetched ${result.length} documents for ${defaulterType} by mentor ${mentorName}`);
+
+        return result;
+    } catch (error) {
+        console.error(`Error fetching repeated defaulters (${defaulterType}) by mentor ${mentorName}:`, error);
+        return [];
+    }
+};
+
+app.get('/mentorRepeatedDefaulters/:mentorName/:defaulterType/:fromDate/:toDate', async (req, res) => {
+    const { mentorName, defaulterType, fromDate, toDate } = req.params;
+
+    try {
+        // Convert dates to ISO format strings
+        const startDate = new Date(`${fromDate}T00:00:00.000Z`).toISOString();
+        const endDate = new Date(`${toDate}T23:59:59.999Z`).toISOString();
+
+        let disciplineData = [];
+        let latecomersData = [];
+
+        // Fetch data based on defaulterType and mentorName using fetchRepeatedDefaultersByMentor
+        if (defaulterType === 'dresscode' || defaulterType === 'both') {
+            disciplineData = await fetchRepeatedDefaultersByMentor('dresscode', mentorName, startDate, endDate);
+        }
+
+        if (defaulterType === 'latecomers' || defaulterType === 'both') {
+            latecomersData = await fetchRepeatedDefaultersByMentor('latecomers', mentorName, startDate, endDate);
+        }
+
+        const combinedData = {
+            dresscode: disciplineData,
+            latecomers: latecomersData
+        };
+
+        console.log(`Combined Data for mentor ${mentorName}:`, combinedData); // Log combined data for debugging
+        res.json(combinedData);
+    } catch (error) {
+        console.error(`Error fetching repeated defaulters for mentor ${mentorName}:`, error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

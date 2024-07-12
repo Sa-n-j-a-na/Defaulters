@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './comp.css';
 import ReportDisplayForMentor from './ReportDisplayForMentor';
@@ -34,6 +34,11 @@ function Mentor() {
     navigate(`/mentorReport/${mentorName}/${defaulterType}/${fromDate}/${toDate}`);
   };
 
+  const handleRepeatedDefaultersSubmit = (e) => {
+    e.preventDefault();
+    navigate(`/mentorRepeatedDefaulters/${mentorName}/${defaulterType}/${fromDate}/${toDate}`);
+  };
+
   return (
     <div className="compContainer">
       <div className="compHeader">
@@ -46,6 +51,7 @@ function Mentor() {
           <h2>Menus</h2>
           <a href="/mentor">Home</a>
           <a href="#generateReport" onClick={() => setCurrentView('generateReport')}>Generate Report</a>
+          <a href="#repeatedDefaulters" onClick={() => setCurrentView('repeatedDefaulters')}>Repeated Defaulters</a>
         </div>
         <div className="mainContent">
           <div className="welcome">
@@ -75,6 +81,34 @@ function Mentor() {
                 </div>
                 <div className="formGroup buttonGroup com-login-buttons">
                   <button type="submit">Generate Report</button>
+                </div>
+              </form>
+            </div>
+          )}
+          {currentView === 'repeatedDefaulters' && (
+            <div className="welcomeform">
+              <form className="formContainer outlinedForm" onSubmit={handleRepeatedDefaultersSubmit}>
+                <div className="borderContainer">
+                  <div className="formGroup">
+                    <label>Defaulters type:</label>
+                    <select value={defaulterType} onChange={(e) => setDefaulterType(e.target.value)} required>
+                      <option value="">--Select--</option>
+                      <option value="dresscode">Dresscode and Discipline</option>
+                      <option value="latecomers">Latecomers</option>
+                      <option value="both">Both</option>
+                    </select>
+                  </div>
+                  <div className="formGroup">
+                    <label htmlFor="fromDate">From Date:</label>
+                    <input type="date" id="fromDate" name="fromDate" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required />
+                  </div>
+                  <div className="formGroup">
+                    <label htmlFor="toDate">To Date:</label>
+                    <input type="date" id="toDate" name="toDate" value={toDate} onChange={(e) => setToDate(e.target.value)} required />
+                  </div>
+                </div>
+                <div className="formGroup buttonGroup com-login-buttons">
+                  <button type="submit">View Repeated Defaulters</button>
                 </div>
               </form>
             </div>

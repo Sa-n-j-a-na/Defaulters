@@ -10,8 +10,8 @@ const formatDate = (dateString) => {
   return `${day}-${month}-${year}`; // Format as dd-mm-yyyy
 };
 
-const RepeatedDefaultersReport = () => {
-  const { defaulterType, fromDate, toDate } = useParams();
+const MentorRepeatedDefaultersReport = () => {
+  const { mentorName, defaulterType, fromDate, toDate } = useParams();
   const location = useLocation();
   const { dept } = location.state || {};
   const [reportData, setReportData] = useState({ dresscode: [], latecomers: [] });
@@ -22,16 +22,16 @@ const RepeatedDefaultersReport = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:5000/repeateddefaultersreport/${defaulterType}/${fromDate}/${toDate}`);
+        const response = await fetch(`http://localhost:5000/mentorRepeatedDefaulters/${mentorName}/${defaulterType}/${fromDate}/${toDate}`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        console.log('Fetched Report Data:', data);
+        console.log('Fetched Mentor Report Data:', data);
         setReportData(data);
         setError(null); // Reset error state on successful fetch
       } catch (error) {
-        console.error('Error fetching report data:', error);
+        console.error('Error fetching mentor report data:', error);
         setError(error.message || 'Error fetching data');
       } finally {
         setLoading(false);
@@ -39,7 +39,7 @@ const RepeatedDefaultersReport = () => {
     };
 
     fetchData();
-  }, [defaulterType, fromDate, toDate]);
+  }, [mentorName, defaulterType, fromDate, toDate]);
 
   return (
     <div className="excelcon">
@@ -55,8 +55,8 @@ const RepeatedDefaultersReport = () => {
             <p>Viraganoor, Madurai-625009</p>
             <p>Department of Physical Education</p>
             <p>{new Date(fromDate).toDateString() === new Date(toDate).toDateString()
-              ? `Repeated Defaulters on ${formatDate(fromDate)}`
-              : `Repeated Defaulters from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</p>
+              ? `Repeated Defaulters for ${mentorName} on ${formatDate(fromDate)}`
+              : `Repeated Defaulters for ${mentorName} from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</p>
           </div>
           <div className="btn-toolbar mb-2 mb-md-0">
             <div className="btn-group mr-2">
@@ -114,4 +114,4 @@ const RepeatedDefaultersReport = () => {
   );
 };
 
-export default RepeatedDefaultersReport;
+export default MentorRepeatedDefaultersReport;
