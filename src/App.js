@@ -8,7 +8,8 @@ import Hod from './components/Hod';
 import Mentor from './components/Mentor';
 import ReportDisplay from './components/ReportDisplay';
 import DefaulterReport from './components/DefaulterReport';
-import ReportDisplayForMentor from './components/ReportDisplayForMentor'; // Import corrected ReportDisplayForMentor
+import ReportDisplayForMentor from './components/ReportDisplayForMentor'; 
+import RepeatedDefaultersReport from './components/RepeatedDefaultersReport'; // Corrected import path
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/report/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<ReportDisplay />} />} />
           <Route path="/defaulterreport/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<DefaulterReport />} />} />
           <Route path="/mentorReport/:mentorName/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<ReportDisplayForMentor />} />} />
+          <Route path="/repeateddefaultersreport/:fromDate/:toDate" element={<PrivateRoute element={<RepeatedDefaultersReport />} />} /> {/* Added PrivateRoute */}
         </Routes>
       </Router>
     </AuthProvider>
