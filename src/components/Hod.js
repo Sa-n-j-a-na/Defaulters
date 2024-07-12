@@ -29,7 +29,7 @@ function Hod() {
 
   const handleRepeatedDefaultersSubmit = (e) => {
     e.preventDefault();
-    navigate(`/repeateddefaultersreport/${fromDate}/${toDate}`, { state: { dept, defaulterType } });
+    navigate(`/repeateddefaultersreport/${defaulterType}/${fromDate}/${toDate}`, { state: { dept } });
   };
 
   const handleViewChange = (view) => {
