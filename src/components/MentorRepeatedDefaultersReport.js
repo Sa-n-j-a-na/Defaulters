@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
+import ExcelJS from 'exceljs';
+import saveAs from 'file-saver';
 import './comp.css';
 
 const formatDate = (dateString) => {
@@ -41,15 +43,131 @@ const MentorRepeatedDefaultersReport = () => {
     fetchData();
   }, [mentorName, defaulterType, fromDate, toDate]);
 
-  const exportToExcel = () => {
-    // Logic for exporting to Excel
-    console.log('Exporting to Excel...');
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Report Data');
+  
+    const formattedFromDate = formatDate(fromDate);
+    const formattedToDate = formatDate(toDate);
+    const dateRangeText = new Date(fromDate).toDateString() === new Date(toDate).toDateString()
+      ? `Repeated Defaulters on ${formattedFromDate}`
+      : `Repeated Defaulters from ${formattedFromDate} to ${formattedToDate}`;
+  
+    // Add college headers
+    const collegeHeaders = [
+      ["Velammal College of Engineering and Technology"],
+      ["(Autonomous)"],
+      ["Viraganoor, Madurai-625009"],
+      ["Department of Physical Education"],
+      [dateRangeText],
+      [], // Empty row for spacing
+    ];
+  
+    // Add college headers with merged cells up to column J
+    let rowIndex = 1;
+    collegeHeaders.forEach(row => {
+      const excelRow = worksheet.addRow(row);
+      excelRow.eachCell(cell => {
+        cell.font = { bold: true };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+      worksheet.mergeCells(`A${rowIndex}:J${rowIndex}`); // Merge up to column J
+      rowIndex++;
+    });
+  
+    worksheet.addRow([]); // Empty row for spacing
+  
+    // Function to add headers and data for each defaulter type
+    const addHeadersAndData = (type, data) => {
+      const formattedFromDate = formatDate(fromDate);
+      const formattedToDate = formatDate(toDate);
+      const dateRangeText = new Date(fromDate).toDateString() === new Date(toDate).toDateString()
+        ? `on ${formattedFromDate}`
+        : `from ${formattedFromDate} to ${formattedToDate}`;
+  
+      // Add section title with formatting
+      const headingRow = worksheet.addRow([`${type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'} ${dateRangeText}`]);
+      headingRow.eachCell(cell => {
+        cell.font = { bold: true };
+      });
+  
+      rowIndex++;
+  
+      // Add empty row after heading
+      worksheet.addRow([]);
+  
+      // Add headers
+      const headers = [
+        'S.No', 'Academic Year', 'Semester', 'Department', 'Mentor', 'Year', 'Roll Number', 'Student Name', 'Entry Date',
+        ...(type === 'latecomers' ? ['Time In'] : []),
+        ...(type === 'dresscode' ? ['Observation'] : []),
+      ];
+  
+      worksheet.addRow(headers); // Add headers row
+      worksheet.lastRow.eachCell(cell => {
+        cell.font = { bold: true };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+  
+      // Add data rows
+      data.forEach((item, index) => {
+        const row = [
+          index + 1, // S.No
+          item.academicYear, item.semester, item.department, item.mentor, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
+          ...(type === 'latecomers' ? [item.time_in] : []),
+          ...(type === 'dresscode' ? [item.observation] : []),
+        ];
+        worksheet.addRow(row).eachCell((cell, colNumber) => {
+          if ((type === 'dresscode' && [5, 7, 8, 10].includes(colNumber))||(type === 'latecomers' && [5, 7, 8].includes(colNumber))) {
+            cell.alignment = { vertical: 'middle', horizontal: 'left' }; // Left align for specific columns
+          } else {
+            cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others
+          }
+        });
+      });
+  
+      // Add empty row after data
+      worksheet.addRow([]);
+      rowIndex++;
+    };
+  
+    // Add data based on the selected defaulter type
+    if (defaulterType === 'both') {
+      addHeadersAndData('dresscode', reportData.dresscode);
+      addHeadersAndData('latecomers', reportData.latecomers);
+    } else {
+      addHeadersAndData(defaulterType, reportData[defaulterType]);
+    }
+  
+    // Auto resize columns based on content
+    worksheet.columns.forEach(column => {
+      let maxLength = 0;
+      column.eachCell({ includeEmpty: true }, cell => {
+        const columnLength = cell.value ? cell.value.toString().length : 0;
+        if (columnLength > maxLength) {
+          maxLength = columnLength;
+        }
+      });
+      column.width = Math.min(maxLength + 1, 20); // Minimum width of 25
+    });
+  
+    // Center align the first six lines
+    for (let i = 1; i <= 5; i++) {
+      worksheet.getRow(i).eachCell(cell => {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+    }
+  
+    // Generate Excel file and save
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, `Report_${fromDate}_to_${toDate}.xlsx`);
   };
+  
 
   const renderTable = (type, data) => (
     <div>
       <h5 className="table-heading">{type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'}</h5>
-      {data.length > 0 ? (
         <div key={type} className="table-container">
           <table className="defaulters-table">
             <thead>
@@ -86,9 +204,6 @@ const MentorRepeatedDefaultersReport = () => {
             </tbody>
           </table>
         </div>
-      ) : (
-        <p>No data available</p>
-      )}
     </div>
   );
 
@@ -96,8 +211,8 @@ const MentorRepeatedDefaultersReport = () => {
     if (defaulterType === 'both') {
       return (
         <>
-          {renderTable('latecomers', reportData.latecomers)}
           {renderTable('dresscode', reportData.dresscode)}
+          {renderTable('latecomers', reportData.latecomers)}
         </>
       );
     } else if (defaulterType === 'latecomers') {
@@ -123,9 +238,9 @@ const MentorRepeatedDefaultersReport = () => {
               <h4>Department of Physical Education</h4>
             </div>
             <div className="export-button" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px' }}>
-              <button onClick={exportToExcel} style={{ marginLeft: 'auto' }}>Export to Excel</button>
+              <button onClick={exportToExcel} style={{ marginLeft: 'auto' }}>Print Excel Report</button>
             </div>
-            <h4 className="report-title">Defaulters {new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? `on ${formatDate(fromDate)}` : `from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</h4>
+            <h4 className="report-title">Repeated Defaulters {new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? `on ${formatDate(fromDate)}` : `from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</h4>
           </div>
           {renderContent()}
         </div>
