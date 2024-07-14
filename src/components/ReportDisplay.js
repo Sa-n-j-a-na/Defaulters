@@ -106,7 +106,6 @@ const ReportDisplay = () => {
       const headingRow = worksheet.addRow([`${type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'} ${dateRangeText}`]);
       headingRow.eachCell(cell => {
         cell.font = { bold: true };
-        cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
 
       rowIndex++;

@@ -41,6 +41,72 @@ const MentorRepeatedDefaultersReport = () => {
     fetchData();
   }, [mentorName, defaulterType, fromDate, toDate]);
 
+  const exportToExcel = () => {
+    // Logic for exporting to Excel
+    console.log('Exporting to Excel...');
+  };
+
+  const renderTable = (type, data) => (
+    <div>
+      <h5 className="table-heading">{type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'}</h5>
+      {data.length > 0 ? (
+        <div key={type} className="table-container">
+          <table className="defaulters-table">
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Academic Year</th>
+                <th>Semester</th>
+                <th>Department</th>
+                <th>Mentor</th>
+                <th>Year</th>
+                <th>Roll Number</th>
+                <th>Student Name</th>
+                <th>Entry Date</th>
+                {type === 'latecomers' && <th>Time In</th>}
+                {type === 'dresscode' && <th>Observation</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{item.academicYear}</td>
+                  <td>{item.semester}</td>
+                  <td>{item.department}</td>
+                  <td>{item.mentor}</td>
+                  <td>{item.year}</td>
+                  <td>{item.rollNumber}</td>
+                  <td>{item.studentName}</td>
+                  <td>{formatDate(item.entryDate)}</td>
+                  {type === 'latecomers' && <td>{item.time_in}</td>}
+                  {type === 'dresscode' && <td>{item.observation}</td>}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p>No data available</p>
+      )}
+    </div>
+  );
+
+  const renderContent = () => {
+    if (defaulterType === 'both') {
+      return (
+        <>
+          {renderTable('latecomers', reportData.latecomers)}
+          {renderTable('dresscode', reportData.dresscode)}
+        </>
+      );
+    } else if (defaulterType === 'latecomers') {
+      return renderTable('latecomers', reportData.latecomers);
+    } else if (defaulterType === 'dresscode') {
+      return renderTable('dresscode', reportData.dresscode);
+    }
+  };
+
   return (
     <div className="excelcon">
       {loading ? (
@@ -49,65 +115,19 @@ const MentorRepeatedDefaultersReport = () => {
         <p>Error: {error}</p>
       ) : (
         <div className="report-display">
-          <div style={{ textAlign: 'center', fontWeight: 'bold' }}>
-            <h4>Velammal College of Engineering and Technology</h4>
-            <p>(Autonomous)</p>
-            <p>Viraganoor, Madurai-625009</p>
-            <p>Department of Physical Education</p>
-            <p>{new Date(fromDate).toDateString() === new Date(toDate).toDateString()
-              ? `Repeated Defaulters for ${mentorName} on ${formatDate(fromDate)}`
-              : `Repeated Defaulters for ${mentorName} from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</p>
-          </div>
-          <div className="btn-toolbar mb-2 mb-md-0">
-            <div className="btn-group mr-2">
-              <button className="btn btn-sm btn-outline-secondary">Export to Excel</button>
+          <div>
+            <div className="header">
+              <h4>Velammal College of Engineering and Technology</h4>
+              <h4>(Autonomous)</h4>
+              <h4>Viraganoor, Madurai-625009</h4>
+              <h4>Department of Physical Education</h4>
             </div>
-          </div>
-          {Object.entries(reportData).map(([type, data]) => (
-            <div key={type}>
-              <h5>{type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'}</h5>
-              {data.length > 0 ? (
-                <div className="table-responsive">
-                  <table className="table table-striped table-sm">
-                    <thead>
-                      <tr>
-                        <th>S.No</th>
-                        <th>Academic Year</th>
-                        <th>Semester</th>
-                        <th>Department</th>
-                        <th>Mentor</th>
-                        <th>Year</th>
-                        <th>Roll Number</th>
-                        <th>Student Name</th>
-                        <th>Entry Date</th>
-                        {type === 'latecomers' && <th>Time In</th>}
-                        {type === 'dresscode' && <th>Observation</th>}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.map((item, index) => (
-                        <tr key={index}>
-                          <td>{index + 1}</td>
-                          <td>{item.academicYear}</td>
-                          <td>{item.semester}</td>
-                          <td>{item.department}</td>
-                          <td>{item.mentor}</td>
-                          <td>{item.year}</td>
-                          <td>{item.rollNumber}</td>
-                          <td>{item.studentName}</td>
-                          <td>{formatDate(item.entryDate)}</td>
-                          {type === 'latecomers' && <td>{item.time_in}</td>}
-                          {type === 'dresscode' && <td>{item.observation}</td>}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <p>No data available</p>
-              )}
+            <div className="export-button" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px' }}>
+              <button onClick={exportToExcel} style={{ marginLeft: 'auto' }}>Export to Excel</button>
             </div>
-          ))}
+            <h4 className="report-title">Defaulters {new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? `on ${formatDate(fromDate)}` : `from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</h4>
+          </div>
+          {renderContent()}
         </div>
       )}
     </div>
