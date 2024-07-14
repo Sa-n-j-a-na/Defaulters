@@ -135,7 +135,7 @@ const ReportDisplay = () => {
           ...(type === 'dresscode' ? [item.observation] : []),
         ];
         worksheet.addRow(row).eachCell((cell, colNumber) => {
-          if (type === 'dresscode' && [5, 7, 8, 10].includes(colNumber)) {
+          if ((type === 'dresscode' && [5, 7, 8, 10].includes(colNumber))||(type === 'latecomers' && [5, 7, 8].includes(colNumber))) {
             cell.alignment = { vertical: 'middle', horizontal: 'left' }; // Left align for specific columns
           }  else {
             cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others

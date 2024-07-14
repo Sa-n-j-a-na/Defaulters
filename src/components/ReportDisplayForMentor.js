@@ -14,46 +14,45 @@ const formatDate = (dateString) => {
 
 const ReportDisplayForMentor = () => {
   const { mentorName, defaulterType, fromDate, toDate } = useParams();
-  const [dresscodeData, setDresscodeData] = useState([]);
-  const [latecomersData, setLatecomersData] = useState([]);
+  const [reportData, setReportData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const urlParams = new URLSearchParams({
-          fromDate,
-          toDate: toDate || fromDate, // Use fromDate if toDate is not provided
+        let data = [];
+
+        if (defaulterType === 'both') {
+          const dresscodeResponse = await fetch(`http://localhost:5000/dresscode?fromDate=${fromDate}&toDate=${toDate}`);
+          const latecomersResponse = await fetch(`http://localhost:5000/latecomers?fromDate=${fromDate}&toDate=${toDate}`);
+          
+          const dresscodeData = await dresscodeResponse.json();
+          const latecomersData = await latecomersResponse.json();
+
+          data = [
+            { type: 'dresscode', data: dresscodeData.filter(item => item.mentor === mentorName) },
+            { type: 'latecomers', data: latecomersData.filter(item => item.mentor === mentorName) }
+          ];
+        } else {
+          const response = await fetch(`http://localhost:5000/${defaulterType}?fromDate=${fromDate}&toDate=${toDate}`);
+          const filteredData = (await response.json()).filter(item => item.mentor === mentorName);
+          data = [{ type: defaulterType, data: filteredData }];
+        }
+
+        data.forEach(({ data }) => {
+          // Sort each data set by entry date
+          data.sort((a, b) => new Date(a.entryDate) - new Date(b.entryDate));
+
+          // Sort each date's data by department (alphabetically) and year (descending)
+          data.sort((a, b) => {
+            const dateComparison = new Date(a.entryDate) - new Date(b.entryDate);
+            if (dateComparison !== 0) return dateComparison;
+            if (a.department < b.department) return -1;
+            if (a.department > b.department) return 1;
+            return b.year.localeCompare(a.year); // Assuming year is a string like 'I', 'II', 'III', 'IV'
+          });
         });
 
-        let response;
-        if (defaulterType === 'dresscode') {
-          response = await fetch(`http://localhost:5000/dresscode?${urlParams.toString()}`);
-        } else if (defaulterType === 'latecomers') {
-          response = await fetch(`http://localhost:5000/latecomers?${urlParams.toString()}`);
-        } else {
-          // Fetch both types if defaulterType is "both"
-          const dresscodeResponse = await fetch(`http://localhost:5000/dresscode?${urlParams.toString()}`);
-          const latecomersResponse = await fetch(`http://localhost:5000/latecomers?${urlParams.toString()}`);
-
-          const dresscodeData = await dresscodeResponse.json();
-          const filteredDresscodeData = dresscodeData.filter(item => item.mentor === mentorName);
-
-          const latecomersData = await latecomersResponse.json();
-          const filteredLatecomersData = latecomersData.filter(item => item.mentor === mentorName);
-
-          setDresscodeData(filteredDresscodeData);
-          setLatecomersData(filteredLatecomersData);
-          return;
-        }
-
-        const data = await response.json();
-        const filteredData = data.filter(item => item.mentor === mentorName);
-
-        if (defaulterType === 'dresscode') {
-          setDresscodeData(filteredData);
-        } else if (defaulterType === 'latecomers') {
-          setLatecomersData(filteredData);
-        }
+        setReportData(data);
       } catch (error) {
         console.error('Error fetching report data:', error);
       }
@@ -65,17 +64,23 @@ const ReportDisplayForMentor = () => {
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Report Data');
-
+  
+    const formattedFromDate = formatDate(fromDate);
+    const formattedToDate = formatDate(toDate);
+    const dateRangeText = new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? 
+      `Defaulters on ${formattedFromDate}` : 
+      `Defaulters from ${formattedFromDate} to ${formattedToDate}`;
+  
     // Add college headers
     const collegeHeaders = [
       ["Velammal College of Engineering and Technology"],
       ["(Autonomous)"],
       ["Viraganoor, Madurai-625009"],
       ["Department of Physical Education"],
-      [`Print Excel Report - Defaulters from ${formatDate(fromDate)} to ${formatDate(toDate)}`],
+      [dateRangeText],
       [], // Empty row for spacing
     ];
-
+  
     // Add college headers with merged cells up to column J
     let rowIndex = 1;
     collegeHeaders.forEach(row => {
@@ -87,64 +92,66 @@ const ReportDisplayForMentor = () => {
       worksheet.mergeCells(`A${rowIndex}:J${rowIndex}`); // Merge up to column J
       rowIndex++;
     });
-
+  
     worksheet.addRow([]); // Empty row for spacing
-
-    // Function to add headers and data for dresscode
-    const addDresscodeData = () => {
-      worksheet.addRow(['DRESSCODE AND DISCIPLINE DEFAULTERS']);
-      worksheet.addRow([
-        'S.No', 'Academic Year', 'Semester', 'Department', 'Mentor', 'Year', 'Roll Number', 'Student Name', 'Entry Date', 'Observation'
-      ]);
-      dresscodeData.forEach((item, index) => {
-        worksheet.addRow([
-          index + 1,
-          item.academicYear,
-          item.semester,
-          item.department,
-          item.mentor,
-          item.year,
-          item.rollNumber,
-          item.studentName,
-          formatDate(item.entryDate),
-          item.observation,
-        ]);
+  
+    // Function to add headers and data for each defaulter type
+    const addHeadersAndData = (type, data) => {
+      const dateRangeText = new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? 
+        `on ${formattedFromDate}` : 
+        `from ${formattedFromDate} to ${formattedToDate}`;
+  
+      // Add section title with formatting
+      const headingRow = worksheet.addRow([`${type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'} ${dateRangeText}`]);
+      headingRow.eachCell(cell => {
+        cell.font = { bold: true };
       });
-      worksheet.addRow([]); // Empty row after dresscode data
-    };
-
-    // Function to add headers and data for latecomers
-    const addLatecomersData = () => {
-      worksheet.addRow(['LATECOMERS']);
-      worksheet.addRow([
-        'S.No', 'Academic Year', 'Semester', 'Department', 'Mentor', 'Year', 'Roll Number', 'Student Name', 'Entry Date', 'Time In'
-      ]);
-      latecomersData.forEach((item, index) => {
-        worksheet.addRow([
-          index + 1,
-          item.academicYear,
-          item.semester,
-          item.department,
-          item.mentor,
-          item.year,
-          item.rollNumber,
-          item.studentName,
-          formatDate(item.entryDate),
-          item.time_in,
-        ]);
+  
+      rowIndex++;
+  
+      // Add empty row after heading
+      worksheet.addRow([]);
+  
+      // Add headers
+      const headers = [
+        'S.No', 'Academic Year', 'Semester', 'Department', 'Mentor', 'Year', 'Roll Number', 'Student Name', 'Entry Date',
+        ...(type === 'latecomers' ? ['Time In'] : []),
+        ...(type === 'dresscode' ? ['Observation'] : []),
+      ];
+  
+      worksheet.addRow(headers); // Add headers row
+      worksheet.lastRow.eachCell(cell => {
+        cell.font = { bold: true };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
-      worksheet.addRow([]); // Empty row after latecomers data
+  
+      // Add data rows
+      data.forEach((item, index) => {
+        const row = [
+          index + 1, // S.No
+          item.academicYear, item.semester, item.department, item.mentor, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
+          ...(type === 'latecomers' ? [item.time_in] : []),
+          ...(type === 'dresscode' ? [item.observation] : []),
+        ];
+        worksheet.addRow(row).eachCell((cell, colNumber) => {
+          if ((type === 'dresscode' && [5, 7, 8, 10].includes(colNumber)) || (type === 'latecomers' && [5, 7, 8].includes(colNumber))) {
+            cell.alignment = { vertical: 'middle', horizontal: 'left' }; // Left align for specific columns
+          } else {
+            cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others
+          }
+        });
+      });
+  
+      // Add empty row after data
+      worksheet.addRow([]);
+      rowIndex++;
     };
-
-    // Add dresscode and latecomers sections if data exists
-    if (dresscodeData.length > 0) {
-      addDresscodeData();
-    }
-
-    if (latecomersData.length > 0) {
-      addLatecomersData();
-    }
-
+  
+    // Add data for each defaulter type in the order: dresscode first, then latecomers
+    reportData.forEach(({ type, data }) => {
+      addHeadersAndData(type, data);
+    });
+  
     // Auto resize columns based on content
     worksheet.columns.forEach(column => {
       let maxLength = 0;
@@ -154,16 +161,16 @@ const ReportDisplayForMentor = () => {
           maxLength = columnLength;
         }
       });
-      column.width = Math.min(maxLength + 1, 20); // Minimum width of 20
+      column.width = Math.min(maxLength + 1, 20); // Minimum width of 25
     });
-
+  
     // Center align the first six lines
     for (let i = 1; i <= 5; i++) {
       worksheet.getRow(i).eachCell(cell => {
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
     }
-
+  
     // Generate Excel file and save
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -183,89 +190,12 @@ const ReportDisplayForMentor = () => {
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px' }}>
             <button onClick={exportToExcel} style={{ marginLeft: 'auto' }}>Print Excel Report</button>
           </div>
-          <h4 style={{ textAlign: 'center', fontWeight: 'bold' }}>Defaulters from {formatDate(fromDate)} to {formatDate(toDate)}</h4>
+          <h4 style={{ textAlign: 'center', fontWeight: 'bold' }}>Defaulters {new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? `on ${formatDate(fromDate)}` : `from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</h4>
         </div>
-
-        {defaulterType === 'both' && (
-          <>
-            <div className="table-container">
-              <h5 className="table-heading">DRESSCODE AND DISCIPLINE DEFAULTERS</h5>
-              <table className="defaulters-table">
-                <thead>
-                  <tr>
-                    <th>S.No</th>
-                    <th>Academic Year</th>
-                    <th>Semester</th>
-                    <th>Department</th>
-                    <th>Mentor</th>
-                    <th>Year</th>
-                    <th>Roll Number</th>
-                    <th>Student Name</th>
-                    <th>Entry Date</th>
-                    <th>Observation</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dresscodeData.length === 0 ? null : dresscodeData.map((item, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{item.academicYear}</td>
-                      <td>{item.semester}</td>
-                      <td>{item.department}</td>
-                      <td>{item.mentor}</td>
-                      <td>{item.year}</td>
-                      <td>{item.rollNumber}</td>
-                      <td>{item.studentName}</td>
-                      <td>{formatDate(item.entryDate)}</td>
-                      <td>{item.observation}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="table-container">
-              <h5 className="table-heading">LATECOMERS</h5>
-              <table className="defaulters-table">
-                <thead>
-                  <tr>
-                    <th>S.No</th>
-                    <th>Academic Year</th>
-                    <th>Semester</th>
-                    <th>Department</th>
-                    <th>Mentor</th>
-                    <th>Year</th>
-                    <th>Roll Number</th>
-                    <th>Student Name</th>
-                    <th>Entry Date</th>
-                    <th>Time In</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {latecomersData.length === 0 ? null : latecomersData.map((item, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{item.academicYear}</td>
-                      <td>{item.semester}</td>
-                      <td>{item.department}</td>
-                      <td>{item.mentor}</td>
-                      <td>{item.year}</td>
-                      <td>{item.rollNumber}</td>
-                      <td>{item.studentName}</td>
-                      <td>{formatDate(item.entryDate)}</td>
-                      <td>{item.time_in}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-
-        {defaulterType === 'dresscode' && (
-          <div className="table-container">
-            <h5 className="table-heading">DRESSCODE AND DISCIPLINE DEFAULTERS</h5>
-            <table className="defaulters-table">
+        {reportData.map(({ type, data }) => (
+          <div key={type} className="table-container">
+            <h5 className="table-heading">{type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'}</h5>
+            <table className="report-table">
               <thead>
                 <tr>
                   <th>S.No</th>
@@ -277,11 +207,12 @@ const ReportDisplayForMentor = () => {
                   <th>Roll Number</th>
                   <th>Student Name</th>
                   <th>Entry Date</th>
-                  <th>Observation</th>
+                  {type === 'latecomers' && <th>Time In</th>}
+                  {type === 'dresscode' && <th>Observation</th>}
                 </tr>
               </thead>
               <tbody>
-                {dresscodeData.length === 0 ? null : dresscodeData.map((item, index) => (
+                {data.map((item, index) => (
                   <tr key={index}>
                     <td>{index + 1}</td>
                     <td>{item.academicYear}</td>
@@ -292,51 +223,14 @@ const ReportDisplayForMentor = () => {
                     <td>{item.rollNumber}</td>
                     <td>{item.studentName}</td>
                     <td>{formatDate(item.entryDate)}</td>
-                    <td>{item.observation}</td>
+                    {type === 'latecomers' && <td>{item.time_in}</td>}
+                    {type === 'dresscode' && <td>{item.observation}</td>}
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        )}
-
-        {defaulterType === 'latecomers' && (
-          <div className="table-container">
-            <h5 className="table-heading">LATECOMERS</h5>
-            <table className="defaulters-table">
-              <thead>
-                <tr>
-                  <th>S.No</th>
-                  <th>Academic Year</th>
-                  <th>Semester</th>
-                  <th>Department</th>
-                  <th>Mentor</th>
-                  <th>Year</th>
-                  <th>Roll Number</th>
-                  <th>Student Name</th>
-                  <th>Entry Date</th>
-                  <th>Time In</th>
-                </tr>
-              </thead>
-              <tbody>
-                {latecomersData.length === 0 ? null : latecomersData.map((item, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{item.academicYear}</td>
-                    <td>{item.semester}</td>
-                    <td>{item.department}</td>
-                    <td>{item.mentor}</td>
-                    <td>{item.year}</td>
-                    <td>{item.rollNumber}</td>
-                    <td>{item.studentName}</td>
-                    <td>{formatDate(item.entryDate)}</td>
-                    <td>{item.time_in}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        ))}
       </div>
     </div>
   );
