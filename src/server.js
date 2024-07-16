@@ -331,34 +331,74 @@ app.get('/mentorRepeatedDefaulters/:mentorName/:defaulterType/:fromDate/:toDate'
     const { mentorName, defaulterType, fromDate, toDate } = req.params;
 
     try {
-        // Convert dates to ISO format strings
         const startDate = new Date(`${fromDate}T00:00:00.000Z`).toISOString();
         const endDate = new Date(`${toDate}T23:59:59.999Z`).toISOString();
 
-        let disciplineData = [];
-        let latecomersData = [];
-
-        // Fetch data based on defaulterType and mentorName using fetchRepeatedDefaultersByMentor
-        if (defaulterType === 'dresscode' || defaulterType === 'both') {
-            disciplineData = await fetchRepeatedDefaultersByMentor('dresscode', mentorName, startDate, endDate);
+        let Data = [];
+        if (defaulterType === 'dresscode' || defaulterType === 'latecomers') {
+            Data = await fetchRepeatedDefaultersByMentor(defaulterType,mentorName, startDate, endDate);
         }
-
-        if (defaulterType === 'latecomers' || defaulterType === 'both') {
-            latecomersData = await fetchRepeatedDefaultersByMentor('latecomers', mentorName, startDate, endDate);
+        if (defaulterType === 'both') {
+            Data = await fetchRepMen(mentorName, startDate, endDate);
         }
-
-        const combinedData = {
-            dresscode: disciplineData,
-            latecomers: latecomersData
-        };
-
-        console.log(`Combined Data for mentor ${mentorName}:`, combinedData); // Log combined data for debugging
-        res.json(combinedData);
+        res.json(Data);
     } catch (error) {
         console.error(`Error fetching repeated defaulters for mentor ${mentorName}:`, error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+const fetchRepMen = async (mentorName, startDate, endDate) => {
+    try {
+        const client = await connectToDatabase();
+        const database = client.db('defaulterTrackingSystem');
+
+        const disciplineCollection = database.collection('discipline_db');
+        const latecomersCollection = database.collection('latecomers_db');
+
+        const disciplineResults = await disciplineCollection.find({
+            entryDate: {
+                $gte: startDate,
+                $lte: endDate
+            },
+            mentor: mentorName
+        }).toArray();
+
+        const latecomersResults = await latecomersCollection.find({
+            entryDate: {
+                $gte: startDate,
+                $lte: endDate
+            },
+            mentor: mentorName
+        }).toArray();
+
+        const allDefaulterData = [...disciplineResults, ...latecomersResults];
+
+        // Create an object to collect entries by rollNumber
+        const rollNumberMap = {};
+        
+        // Iterate over allDefaulterData to group entries by rollNumber
+        allDefaulterData.forEach(entry => {
+            if (!rollNumberMap[entry.rollNumber]) {
+                rollNumberMap[entry.rollNumber] = [];
+            }
+            rollNumberMap[entry.rollNumber].push(entry);
+        });
+
+        // Filter out groups with only one entry (no duplicates)
+        const repeatedDefaulters = Object.values(rollNumberMap)
+            .filter(entries => entries.length > 1)
+            .flatMap(entries => entries);
+
+        console.log(`Fetched ${repeatedDefaulters.length} repeated defaulters for mentor ${mentorName}`);
+        console.log(repeatedDefaulters);
+        return repeatedDefaulters;
+    } catch (error) {
+        console.error(`Error fetching repeated defaulters by mentor ${mentorName}:`, error);
+        return [];
+    }
+};
+
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
