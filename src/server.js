@@ -6,7 +6,7 @@ const cors = require('cors');
 const app = express();
 const port = 5000;
 
-const uri = "mongodb://127.0.0.1:27017";
+const uri = "mongodb+srv://defaulter:defaulter@dts.mkkmthk.mongodb.net/";
 const client = new MongoClient(uri);
 
 let mongoClient = null;
@@ -57,32 +57,47 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/mentors', async (req, res) => {
-    const { dept: department, year } = req.query; // Read 'dept' as 'department'
-    console.log(department + '    ' + year);
+app.get('/student', async (req, res) => {
+    const { rollNumber } = req.query;
+    console.log(rollNumber); // This should log the rollNumber passed from the frontend
+    try {
+      const client = await connectToDatabase();
+      const database = client.db('defaulterTrackingSystem');
+      const student = database.collection('student');
+      const query = {};
+      if (rollNumber) {
+        query.rollNumber = rollNumber;
+      }
+      const datas = await student.find(query).toArray();
+      console.log(datas);
+      res.status(200).json(datas);
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  app.get('/mentor', async (req, res) => {
+    const { rollNumber } = req.query;
 
     try {
         const client = await connectToDatabase();
         const database = client.db('defaulterTrackingSystem');
-        const mentors = database.collection('mentor_db');
-        
-        // Construct query based on provided parameters
-        const query = {};
-        if (department) {
-            query.dept = department; // Adjust to 'dept' if your collection uses 'dept' field
-        }
-        if (year) {
-            query.year = year;
-        }
-        
-        const mentorsList = await mentors.find(query).toArray();
-        console.log(mentorsList);
-        res.status(200).json(mentorsList);
+        const mentorCollection = database.collection('mentor');
+
+        const query = { "students.rollNumber": rollNumber };
+        console.log('Query:', query);
+
+        const mentorData = await mentorCollection.findOne(query);
+        console.log('Mentor Data:', mentorData);
+        res.status(200).json(mentorData);
     } catch (e) {
         console.error(e);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+
 
 app.post('/latecomers', async (req, res) => {
     const formData = req.body;
