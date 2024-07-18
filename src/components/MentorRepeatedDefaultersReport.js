@@ -44,14 +44,14 @@ const MentorRepeatedDefaultersReport = () => {
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Report Data');
-
+  
     const formattedFromDate = formatDate(fromDate);
     const formattedToDate = formatDate(toDate);
     const dateRangeText = new Date(fromDate).toDateString() === new Date(toDate).toDateString()
       ? `Repeated Defaulters on ${formattedFromDate}`
       : `Repeated Defaulters from ${formattedFromDate} to ${formattedToDate}`;
-
-    // Add college headers
+  
+    // Add college headers for repeated defaulters section
     const collegeHeaders = [
       ["Velammal College of Engineering and Technology"],
       ["(Autonomous)"],
@@ -61,7 +61,7 @@ const MentorRepeatedDefaultersReport = () => {
       [dateRangeText],
       [], // Empty row for spacing
     ];
-
+  
     // Add college headers with merged cells up to column J
     let rowIndex = 1;
     collegeHeaders.forEach(row => {
@@ -73,35 +73,35 @@ const MentorRepeatedDefaultersReport = () => {
       worksheet.mergeCells(`A${rowIndex}:J${rowIndex}`); // Merge up to column J
       rowIndex++;
     });
-
+  
     worksheet.addRow([]); // Empty row for spacing
-
+  
     // Function to add headers and data for each defaulter type
     const addHeadersAndData = (type, data) => {
-      const headingRow = worksheet.addRow([`${type === 'latecomers' ? 'LATECOMERS' : (type === 'dresscode' ? 'DRESSCODE AND DISCIPLINE DEFAULTERS' : 'BOTH DEFAULTERS')} ${dateRangeText}`]);
+      const headingRow = worksheet.addRow([`${type === 'latecomers' ? 'LATECOMERS' : (type === 'dresscode' ? 'DRESSCODE AND DISCIPLINE DEFAULTERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS AND LATECOMERS')}`]);
       headingRow.eachCell(cell => {
         cell.font = { bold: true };
       });
-
+  
       rowIndex++;
-
+  
       // Add empty row after heading
       worksheet.addRow([]);
-
-      // Add headers
+  
+      // Add headers for repeated defaulters
       const headers = [
         'S.No', 'Academic Year', 'Semester', 'Department', 'Mentor', 'Year', 'Roll Number', 'Student Name', 'Entry Date',
         ...(type === 'latecomers' ? ['Time In'] : []),
         ...(type === 'dresscode' ? ['Observation'] : []),
         ...(type === 'both' ? ['Observation/Time In'] : []),
       ];
-
+  
       worksheet.addRow(headers); // Add headers row
       worksheet.lastRow.eachCell(cell => {
         cell.font = { bold: true };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
-
+  
       // Group data by rollNumber and studentName
       const groupedData = data.reduce((acc, item) => {
         const key = `${item.rollNumber}-${item.studentName}`;
@@ -111,10 +111,10 @@ const MentorRepeatedDefaultersReport = () => {
         acc[key].entries.push({ entryDate: item.entryDate, observation: item.observation, time_in: item.time_in });
         return acc;
       }, {});
-
+  
       // Filter grouped data to include only entries with more than one occurrence
       const filteredData = Object.values(groupedData).filter(item => item.entries.length > 1);
-
+  
       // Add filtered data rows
       filteredData.forEach((item, index) => {
         worksheet.addRow([
@@ -135,7 +135,7 @@ const MentorRepeatedDefaultersReport = () => {
             cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others
           }
         });
-
+  
         item.entries.slice(1).forEach(entry => {
           worksheet.addRow([
             '',
@@ -156,11 +156,11 @@ const MentorRepeatedDefaultersReport = () => {
             }
           });
         });
-
+  
         // Add empty row after each group
         worksheet.addRow([]);
       });
-
+  
       // Auto resize columns based on content
       worksheet.columns.forEach(column => {
         let maxLength = 0;
@@ -170,9 +170,9 @@ const MentorRepeatedDefaultersReport = () => {
             maxLength = columnLength;
           }
         });
-        column.width = Math.min(maxLength , 20); // Minimum width of 25, increase for observations
+        column.width = Math.min(maxLength, 20); // Minimum width of 20, increase for observations
       });
-
+  
       // Center align the first six lines
       for (let i = 1; i <= 6; i++) {
         worksheet.getRow(i).eachCell(cell => {
@@ -180,13 +180,78 @@ const MentorRepeatedDefaultersReport = () => {
         });
       }
     };
-
+  
+    // Add repeated defaulters data
     addHeadersAndData(defaulterType, reportData);
+  
+    // Calculate cumulative data
+    const cumulativeCounts = {};
+    reportData.forEach(item => {
+      const key = `${item.year}-${item.rollNumber}-${item.studentName}`;
+      if (cumulativeCounts[key]) {
+        cumulativeCounts[key].count++;
+      } else {
+        cumulativeCounts[key] = {
+          year: item.year,
+          rollNumber: item.rollNumber,
+          studentName: item.studentName,
+          count: 1
+        };
+      }
+    });
+  
+    const cumulativeData = Object.values(cumulativeCounts);
 
-    // Generate Excel file and save
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    saveAs(blob, `Report_${formattedFromDate}_to_${formattedToDate}.xlsx`);
+    // Add cumulative table headers and data
+    worksheet.addRow([]); // Empty row before cumulative data
+    worksheet.addRow(["Cumulative Data"]).eachCell(cell => {
+      cell.font = { bold: true };
+    });
+  
+    // Add headers for cumulative data
+    const cumulativeHeaders = [
+      'S.No', 'Year', 'Roll Number', 'Student Name', 'Count'
+    ];
+    worksheet.addRow(cumulativeHeaders); // Add cumulative headers row
+    worksheet.lastRow.eachCell(cell => {
+      cell.font = { bold: true };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    });
+  
+    // Populate cumulative data
+    cumulativeData.forEach((item, index) => {
+      worksheet.addRow([
+        index + 1,
+        item.year,
+        item.rollNumber,
+        item.studentName,
+        item.count
+      ]).eachCell((cell, colNumber) => {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align all cells
+      });
+    });
+  
+    // Auto resize columns based on content
+    worksheet.columns.forEach(column => {
+      let maxLength = 0;
+      column.eachCell({ includeEmpty: true }, cell => {
+        const columnLength = cell.value ? cell.value.toString().length : 0;
+        if (columnLength > maxLength) {
+          maxLength = columnLength;
+        }
+      });
+      column.width = Math.min(maxLength, 20); // Minimum width of 20, increase for observations
+    });
+  
+    // Generate Excel file
+    try {
+      await workbook.xlsx.writeBuffer().then(buffer => {
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, `RepeatedDefaulters_${mentorName}_${defaulterType}_${formattedFromDate}_to_${formattedToDate}.xlsx`);
+      });
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+    }
   };
 
 
@@ -262,7 +327,59 @@ const MentorRepeatedDefaultersReport = () => {
       </div>
     );
   };
+  const renderCumulativeTable = () => {
+    if (!reportData || reportData.length === 0) {
+      return null; // If no report data, render nothing
+    }
   
+    // Calculate cumulative data
+    const cumulativeCounts = {};
+    reportData.forEach(item => {
+      const key = `${item.year}-${item.rollNumber}-${item.studentName}`;
+      if (cumulativeCounts[key]) {
+        cumulativeCounts[key].count++;
+      } else {
+        cumulativeCounts[key] = {
+          year: item.year,
+          rollNumber: item.rollNumber,
+          studentName: item.studentName,
+          count: 1
+        };
+      }
+    });
+  
+    const cumulativeData = Object.values(cumulativeCounts);
+
+    return (
+      <div>
+        <h5 className="table-heading">Cumulative Repeated Defaulters</h5>
+        <div className="table-container">
+          <table className="defaulters-table">
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Year</th>
+                <th>Roll Number</th>
+                <th>Student Name</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cumulativeData.map((item, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{item.year}</td>
+                  <td>{item.rollNumber}</td>
+                  <td>{item.studentName}</td>
+                  <td>{item.count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -293,6 +410,7 @@ const MentorRepeatedDefaultersReport = () => {
             <h4 className="report-title">Repeated Defaulters {new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? `on ${formatDate(fromDate)}` : `from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</h4>
           </div>
           {renderTable(defaulterType, reportData)}
+          {renderCumulativeTable()}
         </div>
       )}
     </div>
