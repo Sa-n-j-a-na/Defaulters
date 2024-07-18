@@ -108,7 +108,7 @@ const MentorRepeatedDefaultersReport = () => {
         if (!acc[key]) {
           acc[key] = { ...item, entries: [] };
         }
-        acc[key].entries.push({ entryDate: item.entryDate, observation: item.observation, time_in: item.time_in });
+        acc[key].entries.push({ entryDate: item.entryDate, observation: item.observation, timeIn: item.timeIn });
         return acc;
       }, {});
   
@@ -127,7 +127,7 @@ const MentorRepeatedDefaultersReport = () => {
           item.rollNumber,
           item.studentName,
           formatDate(item.entries[0].entryDate),
-          item.entries[0].time_in || item.entries[0].observation
+          item.entries[0].timeIn || item.entries[0].observation
         ]).eachCell((cell, colNumber) => {
           if ([5, 7, 8, 10].includes(colNumber)) {
             cell.alignment = { vertical: 'middle', horizontal: 'left' }; // Left align for specific columns
@@ -147,7 +147,7 @@ const MentorRepeatedDefaultersReport = () => {
             '',
             '',
             formatDate(entry.entryDate),
-            entry.time_in || entry.observation
+            entry.timeIn || entry.observation
           ]).eachCell((cell, colNumber) => {
             if ([5, 7, 8, 10].includes(colNumber)) {
               cell.alignment = { vertical: 'middle', horizontal: 'left' }; // Left align for specific columns
@@ -263,7 +263,7 @@ const MentorRepeatedDefaultersReport = () => {
       if (!acc[key]) {
         acc[key] = { ...item, entries: [] };
       }
-      acc[key].entries.push({ entryDate: item.entryDate, observation: item.observation, time_in: item.time_in });
+      acc[key].entries.push({ entryDate: item.entryDate, observation: item.observation, timeIn: item.timeIn });
       return acc;
     }, {});
   
@@ -307,16 +307,16 @@ const MentorRepeatedDefaultersReport = () => {
                     <td rowSpan={item.entries.length}>{item.rollNumber}</td>
                     <td rowSpan={item.entries.length}>{item.studentName}</td>
                     <td>{formatDate(item.entries[0].entryDate)}</td>
-                    {type === 'latecomers' && <td>{item.entries[0].time_in}</td>}
+                    {type === 'latecomers' && <td>{item.entries[0].timeIn}</td>}
                     {type === 'dresscode' && <td>{item.entries[0].observation}</td>}
-                    {type === 'both' && <td>{`${item.entries[0].observation ? item.entries[0].observation : ''}${item.entries[0].observation && item.entries[0].time_in ? ' / ' : ''}${item.entries[0].time_in ? item.entries[0].time_in : ''}`}</td>}
+                    {type === 'both' && <td>{`${item.entries[0].observation ? item.entries[0].observation : ''}${item.entries[0].observation && item.entries[0].timeIn ? ' / ' : ''}${item.entries[0].timeIn ? item.entries[0].timeIn : ''}`}</td>}
                   </tr>
                   {item.entries.slice(1).map((entry, idx) => (
                     <tr key={idx}>
                       <td>{formatDate(entry.entryDate)}</td>
-                      {type === 'latecomers' && <td>{entry.time_in}</td>}
+                      {type === 'latecomers' && <td>{entry.timeIn}</td>}
                       {type === 'dresscode' && <td>{entry.observation}</td>}
-                      {type === 'both' && <td>{`${entry.observation ? entry.observation : ''}${entry.observation && entry.time_in ? ' / ' : ''}${entry.time_in ? entry.time_in : ''}`}</td>}
+                      {type === 'both' && <td>{`${entry.observation ? entry.observation : ''}${entry.observation && entry.timeIn ? ' / ' : ''}${entry.timeIn ? entry.timeIn : ''}`}</td>}
                     </tr>
                   ))}
                 </React.Fragment>
