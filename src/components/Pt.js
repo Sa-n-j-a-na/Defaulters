@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './comp.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Assuming you are using React Router
 
 function Pt() {
   const [isDefaultersExpanded, setIsDefaultersExpanded] = useState(false);
   const [currentView, setCurrentView] = useState('');
   const [mentors, setMentors] = useState([]);
+  const navigate = useNavigate(); 
   const [studentData, setStudentData] = useState({
     studentName: '',
     academicYear: '',
@@ -121,9 +123,11 @@ function Pt() {
 
   const handleGenerateReport = (e) => {
     e.preventDefault();
-    console.log('Generating report:', defaulterType, fromDate, toDate);
-    // Implement report generation logic here
+    navigate(`/report/${defaulterType}/${fromDate}/${toDate}`);
+    console.log('Velammal College of Engineering and Technology (Autonomous)');
+    console.log('Generating report from', fromDate, 'to', toDate);
   };
+
 
   useEffect(() => {
     if (rollNumber) {
@@ -166,7 +170,12 @@ function Pt() {
               <h2>Welcome to the Department of Physical Education</h2>
               <form className="formContainer outlinedForm" onSubmit={handleSubmit}>
                 <div className='borderContainer'>
+                <div className="formGroup">
+                    <label htmlFor="rollNumber">Roll Number:</label>
+                    <input type="text" id="rollNumber" name="rollNumber" value={rollNumber} onChange={(e) => setRollNumber(e.target.value)} required />
+                  </div>
                   <div className="formGroup">
+                    
                     <label htmlFor="academicYear">Academic Year:</label>
                     <input type="text" id="academicYear" name="academicYear" value={studentData.academicYear} readOnly />
                   </div>
@@ -182,10 +191,7 @@ function Pt() {
                     <label htmlFor="year">Year:</label>
                     <input type="text" id="year" name="year" value={studentData.year} readOnly />
                   </div>
-                  <div className="formGroup">
-                    <label htmlFor="rollNumber">Roll Number:</label>
-                    <input type="text" id="rollNumber" name="rollNumber" value={rollNumber} onChange={(e) => setRollNumber(e.target.value)} required />
-                  </div>
+                  
                   <div className="formGroup">
                     <label htmlFor="studentName">Student Name:</label>
                     <input type="text" id="studentName" name="studentName" value={studentData.studentName} readOnly />
@@ -203,42 +209,47 @@ function Pt() {
                   {currentView === 'dresscode' && (
                     <div className="formGroup">
                       <label htmlFor="observation">Observation:</label>
-                      <textarea id="observation" name="observation" value={observation} onChange={(e) => setObservation(e.target.value)} required></textarea>
-                    </div>
+                      <input type="text" id="observation" name="observation" value={observation} onChange={(e) => setObservation(e.target.value)} required />                    </div>
                   )}
                   <div className="formGroup">
                     <label htmlFor="mentor">Mentor:</label>
                     <input type="text" id="mentor" name="mentor" value={selectedMentor} readOnly />
                   </div>
-                  <button type="submit" className="com-login-buttons">Submit</button>
+                  
                 </div>
+                <div className="formGroup buttonGroup com-login-buttons">
+                <button type="submit">Submit</button></div>
               </form>
             </div>
           )}
-          {currentView === 'generateReport' && (
-            <form className="generateReportForm outlinedForm" onSubmit={handleGenerateReport}>
-              <h2>Generate Report</h2>
-              <div className='borderContainer'>
-                <div className="formGroup">
-                  <label htmlFor="defaulterType">Defaulter Type:</label>
-                  <select id="defaulterType" name="defaulterType" value={defaulterType} onChange={(e) => setDefaulterType(e.target.value)} required>
-                    <option value="">Select Defaulter Type</option>
-                    <option value="both">Both</option>
-                    <option value="latecomers">Latecomers</option>
-                    <option value="dresscode">Dresscode and Discipline</option>
-                  </select>
+         {currentView === 'generateReport' && (
+            <div className="welcomeform">
+              <h2>Welcome to the Department of Physical Education</h2> 
+              <form className="formContainer outlinedForm" onSubmit={handleGenerateReport}>
+                <div className="borderContainer">
+                  <div className="formGroup">
+                    <label>Defaulters type:</label>
+                    <select value={defaulterType} onChange={(e) => setDefaulterType(e.target.value)} required>
+                      <option value="">--Select--</option>
+                      <option value="dresscode">Dresscode and Discipline</option>
+                      <option value="latecomers">Latecomers</option>
+                      <option value="both">Both</option>
+                    </select>
+                  </div>
+                  <div className="formGroup">
+                    <label htmlFor="fromDate">From Date:</label>
+                    <input type="date" id="fromDate" name="fromDate" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required />
+                  </div>
+                  <div className="formGroup">
+                    <label htmlFor="toDate">To Date:</label>
+                    <input type="date" id="toDate" name="toDate" value={toDate} onChange={(e) => setToDate(e.target.value)} required />
+                  </div>
                 </div>
-                <div className="formGroup">
-                  <label htmlFor="fromDate">From Date:</label>
-                  <input type="date" id="fromDate" name="fromDate" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required />
+                <div className="formGroup buttonGroup com-login-buttons">
+                  <button type="submit">Generate Report</button>
                 </div>
-                <div className="formGroup">
-                  <label htmlFor="toDate">To Date:</label>
-                  <input type="date" id="toDate" name="toDate" value={toDate} onChange={(e) => setToDate(e.target.value)} required />
-                </div>
-                <button type="submit" className="com-login-buttons">Generate Report</button>
-              </div>
-            </form>
+              </form>
+            </div>
           )}
         </div>
       </div>
