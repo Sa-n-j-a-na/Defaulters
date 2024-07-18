@@ -131,7 +131,7 @@ const ReportDisplay = () => {
         const row = [
           index + 1, // S.No
           item.academicYear, item.semester, item.department, item.mentor, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
-          ...(type === 'latecomers' ? [item.time_in] : []),
+          ...(type === 'latecomers' ? [item.timeIn] : []),
           ...(type === 'dresscode' ? [item.observation] : []),
         ];
         worksheet.addRow(row).eachCell((cell, colNumber) => {
@@ -224,7 +224,7 @@ const ReportDisplay = () => {
                     <td>{item.rollNumber}</td>
                     <td>{item.studentName}</td>
                     <td>{formatDate(item.entryDate)}</td>
-                    {type === 'latecomers' && <td>{item.time_in}</td>}
+                    {type === 'latecomers' && <td>{item.timeIn}</td>}
                     {type === 'dresscode' && <td>{item.observation}</td>}
                   </tr>
                 ))}
