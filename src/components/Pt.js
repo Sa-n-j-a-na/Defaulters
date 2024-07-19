@@ -233,7 +233,8 @@ function Pt() {
                       <option value="">--Select--</option>
                       <option value="dresscode">Dresscode and Discipline</option>
                       <option value="latecomers">Latecomers</option>
-                      <option value="both">Both</option>
+                      <option value="both">                      Dresscode and Discipline and Latecomers
+                      </option>
                     </select>
                   </div>
                   <div className="formGroup">
