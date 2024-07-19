@@ -12,8 +12,8 @@ const formatDate = (dateString) => {
   return `${day}-${month}-${year}`; // Format as dd-mm-yyyy
 };
 
-const MentorRepeatedDefaultersReport = () => {
-  const { mentorName, defaulterType, fromDate, toDate } = useParams();
+const HodRepeatedDefaultersReport = () => {
+  const { dept, defaulterType, fromDate, toDate } = useParams();
   const [reportData, setReportData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); // State for handling errors
@@ -22,16 +22,16 @@ const MentorRepeatedDefaultersReport = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:5000/mentorRepeatedDefaulters/${mentorName}/${defaulterType}/${fromDate}/${toDate}`);
+        const response = await fetch(`http://localhost:5000/hodRepeatedDefaulters/${dept}/${defaulterType}/${fromDate}/${toDate}`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        console.log('Fetched Mentor Report Data:', data);
+        console.log('Fetched HOD Report Data:', data);
         setReportData(data);
         setError(null); // Reset error state on successful fetch
       } catch (error) {
-        console.error('Error fetching mentor report data:', error);
+        console.error('Error fetching HOD report data:', error);
         setError(error.message || 'Error fetching data');
       } finally {
         setLoading(false);
@@ -39,7 +39,7 @@ const MentorRepeatedDefaultersReport = () => {
     };
 
     fetchData();
-  }, [mentorName, defaulterType, fromDate, toDate]);
+  }, [dept, defaulterType, fromDate, toDate]);
 
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
@@ -243,17 +243,11 @@ const MentorRepeatedDefaultersReport = () => {
       column.width = Math.min(maxLength, 20); // Minimum width of 20, increase for observations
     });
   
-    // Generate Excel file
-    try {
-      await workbook.xlsx.writeBuffer().then(buffer => {
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, `RepeatedDefaulters_${mentorName}_${defaulterType}_${formattedFromDate}_to_${formattedToDate}.xlsx`);
-      });
-    } catch (error) {
-      console.error('Error exporting to Excel:', error);
-    }
+    const buffer = await workbook.xlsx.writeBuffer();
+    const formattedFileName = `${dateRangeText.replace(/\//g, '-')}.xlsx`;
+    saveAs(new Blob([buffer]), formattedFileName);
   };
-
+  
 
   const renderTable = (type, data) => {
     console.log('Rendering table for:', type, 'with data:', data);
@@ -334,39 +328,38 @@ const MentorRepeatedDefaultersReport = () => {
   
     // Calculate cumulative data
     const cumulativeCounts = {};
-    reportData.forEach(item => {
-      const key = `${item.year}-${item.rollNumber}-${item.studentName}`;
-      
-      // Initialize the record if not already present
-      if (!cumulativeCounts[key]) {
-        cumulativeCounts[key] = {
-          year: item.year,
-          rollNumber: item.rollNumber,
-          studentName: item.studentName,
-          dresscodeCount: 0,
-          latecomerCount: 0,
-          totalCount: 0
-        };
-      }
-      
-      // Determine if the entry is a dresscode or latecomer
-      const isLatecomer = item.timeIn !== undefined && item.timeIn !== '';
-      
-      if (isLatecomer) {
-        cumulativeCounts[key].latecomerCount++;
-      } else {
-        cumulativeCounts[key].dresscodeCount++;
-      }
-      
-      cumulativeCounts[key].totalCount++;
-    });
-    
-    const cumulativeData = Object.values(cumulativeCounts);
-    
+reportData.forEach(item => {
+  const key = `${item.year}-${item.rollNumber}-${item.studentName}`;
+  
+  // Initialize the record if not already present
+  if (!cumulativeCounts[key]) {
+    cumulativeCounts[key] = {
+      year: item.year,
+      rollNumber: item.rollNumber,
+      studentName: item.studentName,
+      dresscodeCount: 0,
+      latecomerCount: 0,
+      totalCount: 0
+    };
+  }
+  
+  // Determine if the entry is a dresscode or latecomer
+  const isLatecomer = item.timeIn !== undefined && item.timeIn !== '';
+  
+  if (isLatecomer) {
+    cumulativeCounts[key].latecomerCount++;
+  } else {
+    cumulativeCounts[key].dresscodeCount++;
+  }
+  
+  cumulativeCounts[key].totalCount++;
+});
+
+const cumulativeData = Object.values(cumulativeCounts);
 
     return (
       <div>
-         <h5 className="table-heading">Cumulative Repeated Defaulters</h5>
+        <h5 className="table-heading">Cumulative Repeated Defaulters</h5>
         <div className="table-container">
           <table className="defaulters-table">
           <thead>
@@ -391,8 +384,9 @@ const MentorRepeatedDefaultersReport = () => {
                 <td>{item.latecomerCount}</td>
                 <td>{item.totalCount}</td>
               </tr>
-              ))}
-            </tbody>
+            ))}
+          </tbody>
+          
           </table>
         </div>
       </div>
@@ -435,4 +429,4 @@ const MentorRepeatedDefaultersReport = () => {
   );
 };
 
-export default MentorRepeatedDefaultersReport;
+export default HodRepeatedDefaultersReport;

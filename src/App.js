@@ -9,7 +9,7 @@ import Mentor from './components/Mentor';
 import ReportDisplay from './components/ReportDisplay';
 import DefaulterReport from './components/DefaulterReport';
 import ReportDisplayForMentor from './components/ReportDisplayForMentor'; 
-import RepeatedDefaultersReport from './components/RepeatedDefaultersReport';
+import HodRepeatedDefaultersReport from './components/HodRepeatedDefaultersReport';
 import MentorRepeatedDefaultersReport from './components/MentorRepeatedDefaultersReport'; // Import MentorRepeatedDefaultersReport component
 
 function App() {
@@ -24,7 +24,7 @@ function App() {
           <Route path="/report/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<ReportDisplay />} />} />
           <Route path="/defaulterreport/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<DefaulterReport />} />} />
           <Route path="/mentorReport/:mentorName/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<ReportDisplayForMentor />} />} />
-          <Route path="/repeateddefaultersreport/:defaulterType/:fromDate/:toDate" element={<RepeatedDefaultersReport />} />
+          <Route path="/hodRepeatedDefaulters/:dept/:defaulterType/:fromDate/:toDate" element={<HodRepeatedDefaultersReport/>} />
           <Route path="/mentorRepeatedDefaulters/:mentorName/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<MentorRepeatedDefaultersReport />} />} /> 
         </Routes>
       </Router>

@@ -126,11 +126,12 @@
   border-left: 5px solid #FFCC00;
 }
 
-.sidebar a:hover {
+.sidebar a:hover,
+.sidebar a.active {
   background-color: #005580;
   box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
   transform: translateY(-2px);
-  transition: transform 0.2s ease;
+  transition: transform 1000000 ease;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
 }
