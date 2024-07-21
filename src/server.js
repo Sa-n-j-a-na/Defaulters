@@ -97,7 +97,31 @@ app.get('/student', async (req, res) => {
 // In your Express.js server
 
 // In your Express.js server
+app.get('/mentorOverview/:dept', async (req, res) => {
+    const { dept } = req.params;
+    try {
+        const client = await connectToDatabase();
+        const database = client.db('defaulterTrackingSystem');
+        
+        const mentors = await database.collection('mentor').find({ department: dept }).toArray();
 
+        const overviewData = [];
+
+        for (const mentor of mentors) {
+            const mentorName = mentor.mentorName;
+            const latecomersCount = await database.collection('latecomers_db').countDocuments({ mentor: mentorName });
+            const disciplineCount = await database.collection('discipline_db').countDocuments({ mentor: mentorName });
+            const totalDefaulters = latecomersCount + disciplineCount;
+
+            overviewData.push({ mentorName, totalDefaulters });
+        }
+
+        res.json(overviewData);
+    } catch (error) {
+        console.error('Error fetching mentor overview:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 app.get('/checkEntry', async (req, res) => {
     const { rollNumber, entryDate, defaulterType } = req.query;
     console.log(rollNumber+''+entryDate+''+defaulterType);
