@@ -321,7 +321,7 @@ const HodRepeatedDefaultersReport = () => {
       </div>
     );
   };
-  const renderCumulativeTable = () => {
+  const renderCumulativeTable = (type) => {
     if (!reportData || reportData.length === 0) {
       return null; // If no report data, render nothing
     }
@@ -368,9 +368,15 @@ const cumulativeData = Object.values(cumulativeCounts);
               <th>Year</th>
               <th>Roll Number</th>
               <th>Student Name</th>
-              <th>Dresscode Defaulter count</th>
-              <th>Latecomer count</th>
-              <th>Total Count</th>
+              {type === 'latecomers' && <th>Latecomer Count</th>}
+              {type === 'dresscode' && <th>Dresscode Defaulter Count</th>}
+              {type === 'both' && (
+                <>
+                  <th>Dresscode Defaulter Count</th>
+                  <th>Latecomer Count</th>
+                  <th>Total Count</th>
+                </>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -380,9 +386,15 @@ const cumulativeData = Object.values(cumulativeCounts);
                 <td>{item.year}</td>
                 <td>{item.rollNumber}</td>
                 <td>{item.studentName}</td>
-                <td>{item.dresscodeCount}</td>
-                <td>{item.latecomerCount}</td>
-                <td>{item.totalCount}</td>
+                {type === 'latecomers' && <td>{item.latecomerCount}</td>}
+                {type === 'dresscode' && <td>{item.dresscodeCount}</td>}
+                {type === 'both' && (
+                  <>
+                    <td>{item.dresscodeCount}</td>
+                    <td>{item.latecomerCount}</td>
+                    <td>{item.totalCount}</td>
+                  </>
+                )}
               </tr>
             ))}
           </tbody>
@@ -422,7 +434,7 @@ const cumulativeData = Object.values(cumulativeCounts);
             <h4 className="report-title">Repeated Defaulters {new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? `on ${formatDate(fromDate)}` : `from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</h4>
           </div>
           {renderTable(defaulterType, reportData)}
-          {renderCumulativeTable()}
+          {renderCumulativeTable(defaulterType)}
         </div>
       )}
     </div>
