@@ -82,8 +82,8 @@ function Pt() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formattedRollNumber = rollNumber.toUpperCase(); // Use the state variable rollNumber
-    const currentDate = new Date().toISOString().substr(0, 10);
-  
+    const currentDate = new Date().toISOString();
+   const formatDate = currentDate.substr(0, 10);
     // Check for existing entry
     try {
       const checkResponse = await axios.get(`http://localhost:5000/checkEntry`, {

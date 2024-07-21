@@ -122,13 +122,16 @@ app.get('/mentorOverview/:dept', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
 app.get('/checkEntry', async (req, res) => {
     const { rollNumber, entryDate, defaulterType } = req.query;
-    console.log(rollNumber+''+entryDate+''+defaulterType);
+    console.log(`${rollNumber} ${entryDate} ${defaulterType}`);
+    
     try {
       const client = await connectToDatabase();
       const db = client.db('defaulterTrackingSystem');
       let collectionName = '';
+  
       if (defaulterType === 'latecomers') {
         collectionName = 'latecomers_db';
       } else if (defaulterType === 'dresscode') {
@@ -140,9 +143,18 @@ app.get('/checkEntry', async (req, res) => {
       }
   
       const collection = db.collection(collectionName);
+  
+      // Extract date part from entryDate
+      const date = new Date(entryDate);
+      const startOfDay = new Date(date.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(date.setUTCHours(23, 59, 59, 999));
+  
       const existingEntry = await collection.findOne({
         rollNumber: rollNumber,
-        entryDate: entryDate
+        entryDate: {
+          $gte: startOfDay,
+          $lt: endOfDay
+        }
       });
   
       console.log('Existing Entry:', existingEntry); // Log the result of the find query
@@ -152,6 +164,8 @@ app.get('/checkEntry', async (req, res) => {
       res.status(500).json({ exists: false });
     }
   });
+  
+  
   
 
 app.post('/latecomers', async (req, res) => {
