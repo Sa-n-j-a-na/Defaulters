@@ -6,6 +6,7 @@ function Hod() {
   const navigate = useNavigate();
   const location = useLocation();
   const { dept: initialDept } = location.state || {};
+  const [mentorOverview, setMentorOverview] = useState([]); // Define the missing state
 
   const [dept, setDept] = useState(() => {
     return localStorage.getItem('dept') || 'Department';
@@ -21,7 +22,21 @@ function Hod() {
       localStorage.setItem('dept', initialDept);
     }
   }, [initialDept]);
-
+  useEffect(() => {
+    if (currentView === 'mentoroverview') {
+      fetchMentorOverviewData();
+    }
+  }, [currentView]);
+  const fetchMentorOverviewData = async () => {
+    try {
+      // Replace with your actual API endpoint
+      const response = await fetch(`/api/mentorOverview?dept=${dept}`);
+      const data = await response.json();
+      setMentorOverview(data);
+    } catch (error) {
+      console.error('Error fetching mentor overview data:', error);
+    }
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     navigate(`/defaulterreport/${defaulterType}/${fromDate}/${toDate}`, { state: { dept } });
@@ -54,6 +69,7 @@ function Hod() {
           <a href="/hod">Home</a>
           <a href="#generateReport" onClick={() => handleViewChange('generateReport')}>Generate Report</a>
           <a href="#repeatedDefaulters" onClick={() => handleViewChange('repeatedDefaulters')}>Repeated Defaulters</a>
+          <a href="#mentoroverview" onClick={() => handleViewChange('mentoroverview')}>Mentor overview</a>
         </div>
         <div className="mainContent">
           <div className="welcome">
@@ -117,6 +133,26 @@ function Hod() {
                   <button type="submit">View Repeated Defaulters</button>
                 </div>
               </form>
+            </div>
+          )}
+          {currentView === 'mentoroverview' && (
+            <div className="mentorOverviewTable">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mentor Name</th>
+                    <th>Total Defaulters</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {mentorOverview.map((mentor) => (
+                    <tr key={mentor.name}>
+                      <td>{mentor.name}</td>
+                      <td>{mentor.totalDefaulters}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
