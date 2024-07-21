@@ -37,7 +37,6 @@ function Pt() {
       const formattedRollNumber = rollNumber.toUpperCase();
       const response = await axios.get(`http://localhost:5000/student?rollNumber=${formattedRollNumber}`);
       const data = response.data[0];
-      console.log("Student Data:", data);
       if (data) {
         setStudentData({
           studentName: data.studentName,
@@ -83,7 +82,6 @@ function Pt() {
     e.preventDefault();
     const formattedRollNumber = rollNumber.toUpperCase(); // Use the state variable rollNumber
     const currentDate = new Date().toISOString();
-   const formatDate = currentDate.substr(0, 10);
     // Check for existing entry
     try {
       const checkResponse = await axios.get(`http://localhost:5000/checkEntry`, {
@@ -265,7 +263,7 @@ function Pt() {
                       <option value="">--Select--</option>
                       <option value="dresscode">Dresscode and Discipline</option>
                       <option value="latecomers">Latecomers</option>
-                      <option value="both">                      Dresscode and Discipline and Latecomers
+                      <option value="both">Dresscode and Discipline and Latecomers
                       </option>
                     </select>
                   </div>

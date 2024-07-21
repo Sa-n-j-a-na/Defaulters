@@ -146,9 +146,9 @@ app.get('/checkEntry', async (req, res) => {
   
       // Extract date part from entryDate
       const date = new Date(entryDate);
-      const startOfDay = new Date(date.setUTCHours(0, 0, 0, 0));
-      const endOfDay = new Date(date.setUTCHours(23, 59, 59, 999));
-  
+      const startOfDay = new Date(date.setUTCHours(0, 0, 0, 0)).toISOString();
+      const endOfDay = new Date(date.setUTCHours(23, 59, 59, 999)).toISOString();
+      console.log(startOfDay+''+endOfDay);
       const existingEntry = await collection.findOne({
         rollNumber: rollNumber,
         entryDate: {
@@ -165,9 +165,6 @@ app.get('/checkEntry', async (req, res) => {
     }
   });
   
-  
-  
-
 app.post('/latecomers', async (req, res) => {
     const formData = req.body;
 
