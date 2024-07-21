@@ -34,7 +34,8 @@ function Pt() {
 
   const fetchStudentData = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/student?rollNumber=${rollNumber}`);
+      const formattedRollNumber = rollNumber.toUpperCase();
+      const response = await axios.get(`http://localhost:5000/student?rollNumber=${formattedRollNumber}`);
       const data = response.data[0];
       console.log("Student Data:", data);
       if (data) {
@@ -46,8 +47,16 @@ function Pt() {
           department: data.dept
         });
         fetchMentorData(rollNumber); // Fetch mentor data after student data
-      } else {
-        console.log('Student not found');
+      }  else {
+        // Clear fields and show error if student is not found
+        setStudentData({
+          studentName: '',
+          academicYear: '',
+          semester: '',
+          year: '',
+          department: ''
+        });
+        setSelectedMentor('');
       }
     } catch (error) {
       console.error('Error fetching student data:', error);
@@ -56,7 +65,8 @@ function Pt() {
 
   const fetchMentorData = async (rollNumber) => {
     try {
-      const response = await axios.get(`http://localhost:5000/mentor?rollNumber=${rollNumber}`);
+      const formattedRollNumber = rollNumber.toUpperCase();
+      const response = await axios.get(`http://localhost:5000/mentor?rollNumber=${formattedRollNumber}`);
       const data = response.data;
       console.log("Mentor Data:", data);
       if (data) {
@@ -71,37 +81,59 @@ function Pt() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const formData = {
-      academicYear: studentData.academicYear,
-      semester: studentData.semester,
-      department: studentData.department,
-      year: studentData.year,
-      rollNumber,
-      studentName: studentData.studentName,
-      entryDate: new Date().toISOString(),
-      mentor: selectedMentor,
-    };
-
-    if (currentView === 'latecomers') {
-      formData.timeIn = timeIn;
-    } else if (currentView === 'dresscode') {
-      formData.observation = observation;
-    }
-
+    const formattedRollNumber = rollNumber.toUpperCase(); // Use the state variable rollNumber
+    const currentDate = new Date().toISOString().substr(0, 10);
+  
+    // Check for existing entry
     try {
+      const checkResponse = await axios.get(`http://localhost:5000/checkEntry`, {
+        params: {
+          rollNumber: formattedRollNumber, // Use the formatted roll number
+          entryDate: currentDate,
+          defaulterType: currentView
+        }
+      });
+  
+      console.log('Check Entry Response:', checkResponse.data); // Log the response from the checkEntry endpoint
+  
+      if (checkResponse.data.exists) {
+        alert('An entry for this roll number already exists for today.');
+        return;
+      }
+  
+      const formData = {
+        academicYear: studentData.academicYear,
+        semester: studentData.semester,
+        department: studentData.department,
+        year: studentData.year,
+        rollNumber: formattedRollNumber, // Use the formatted roll number
+        studentName: studentData.studentName,
+        entryDate: currentDate,
+        mentor: selectedMentor,
+      };
+  
+      if (currentView === 'latecomers') {
+        formData.timeIn = timeIn;
+      } else if (currentView === 'dresscode') {
+        formData.observation = observation;
+      }
+  
       const response = await axios.post(`http://localhost:5000/${currentView}`, formData);
+      console.log('Submit Response:', response); // Log the response from the submit endpoint
+  
       if (response.status === 200) {
         alert('Form submitted successfully');
         resetForm();
       } else {
-        alert('Failed to submit form');
+        alert('Failed to submit form: ' + response.statusText);
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Failed to submit form');
+      console.error('Error:', error);
+      alert('Failed to submit form: ' + error.message);
     }
   };
+  
+  
 
   const resetForm = () => {
     setRollNumber('');

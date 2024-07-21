@@ -69,7 +69,6 @@ app.get('/student', async (req, res) => {
         query.rollNumber = rollNumber;
       }
       const datas = await student.find(query).toArray();
-      console.log(datas);
       res.status(200).json(datas);
     } catch (e) {
       console.error(e);
@@ -86,10 +85,8 @@ app.get('/student', async (req, res) => {
         const mentorCollection = database.collection('mentor');
 
         const query = { "students.rollNumber": rollNumber };
-        console.log('Query:', query);
 
         const mentorData = await mentorCollection.findOne(query);
-        console.log('Mentor Data:', mentorData);
         res.status(200).json(mentorData);
     } catch (e) {
         console.error(e);
@@ -97,11 +94,44 @@ app.get('/student', async (req, res) => {
     }
 });
 
+// In your Express.js server
 
+// In your Express.js server
+
+app.get('/checkEntry', async (req, res) => {
+    const { rollNumber, entryDate, defaulterType } = req.query;
+    console.log(rollNumber+''+entryDate+''+defaulterType);
+    try {
+      const client = await connectToDatabase();
+      const db = client.db('defaulterTrackingSystem');
+      let collectionName = '';
+      if (defaulterType === 'latecomers') {
+        collectionName = 'latecomers_db';
+      } else if (defaulterType === 'dresscode') {
+        collectionName = 'discipline_db';
+      }
+  
+      if (!collectionName) {
+        return res.status(400).json({ exists: false });
+      }
+  
+      const collection = db.collection(collectionName);
+      const existingEntry = await collection.findOne({
+        rollNumber: rollNumber,
+        entryDate: entryDate
+      });
+  
+      console.log('Existing Entry:', existingEntry); // Log the result of the find query
+      res.json({ exists: !!existingEntry });
+    } catch (error) {
+      console.error('Error checking existing entry:', error);
+      res.status(500).json({ exists: false });
+    }
+  });
+  
 
 app.post('/latecomers', async (req, res) => {
     const formData = req.body;
-    console.log('Received latecomers data:', formData); // Check if data is received correctly
 
     try {
         const client = await connectToDatabase();
@@ -120,7 +150,6 @@ app.post('/latecomers', async (req, res) => {
 
 app.post('/dresscode', async (req, res) => {
     const formData = req.body;
-    console.log('Received dresscode data:', formData); // Check if data is received correctly
 
     try {
         const client = await connectToDatabase();
