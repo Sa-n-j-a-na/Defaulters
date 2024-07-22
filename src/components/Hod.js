@@ -29,14 +29,19 @@ function Hod() {
   }, [currentView]);
   const fetchMentorOverviewData = async () => {
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch(`/api/mentorOverview?dept=${dept}`);
+      console.log('Fetching mentor overview data');
+      const response = await fetch(`http://localhost:5000/hod/mentorOverview?dept=${dept}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
       const data = await response.json();
+      console.log('Data fetched:', data);
       setMentorOverview(data);
     } catch (error) {
       console.error('Error fetching mentor overview data:', error);
     }
   };
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     navigate(`/defaulterreport/${defaulterType}/${fromDate}/${toDate}`, { state: { dept } });
@@ -116,8 +121,7 @@ function Hod() {
                       <option value="">--Select--</option>
                       <option value="dresscode">Dresscode and Discipline</option>
                       <option value="latecomers">Latecomers</option>
-                      <option value="both">                      Dresscode and Discipline and Latecomers
-                      </option>
+                      <option value="both">Dresscode and Discipline and Latecomers</option>
                     </select>
                   </div>
                   <div className="formGroup">
@@ -137,6 +141,7 @@ function Hod() {
           )}
           {currentView === 'mentoroverview' && (
             <div className="mentorOverviewTable">
+              <center>
               <table>
                 <thead>
                   <tr>
@@ -146,13 +151,14 @@ function Hod() {
                 </thead>
                 <tbody>
                   {mentorOverview.map((mentor) => (
-                    <tr key={mentor.name}>
-                      <td>{mentor.name}</td>
+                    <tr key={mentor.mentorName}>
+                      <td>{mentor.mentorName}</td>
                       <td>{mentor.totalDefaulters}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </center>
             </div>
           )}
         </div>
