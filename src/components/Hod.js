@@ -87,6 +87,9 @@ function Hod() {
     localStorage.removeItem('dept');
     navigate('/');
   };
+  const currentDate = new Date();
+  const pastDate = new Date();
+  pastDate.setDate(currentDate.getDate() - 7);
 
   return (
     <div className="compContainer">
@@ -177,9 +180,11 @@ function Hod() {
           )}
 
           {currentView === 'mentoroverview' && (
-            <div className="mentorOverviewTable">
+           <div className="report-displayinhod">
+             <div className="table-container">
+             <h4>Mentor Overview: Defaulters from {pastDate.toLocaleDateString()} to {currentDate.toLocaleDateString()}</h4>
               <center>
-                <table>
+              <table className="defaulters-table">
                   <thead>
                     <tr>
                       <th>Mentor Name</th>
@@ -196,7 +201,7 @@ function Hod() {
                   </tbody>
                 </table>
               </center>
-            </div>
+            </div></div>
           )}
         </div>
       </div>

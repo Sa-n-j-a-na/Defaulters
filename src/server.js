@@ -114,27 +114,48 @@ app.get('/hod/mentorOverview', async (req, res) => {
     const { dept } = req.query;
     console.log('Request received for dept:', dept);
     try {
-      const client = await connectToDatabase();
-      const database = client.db('defaulterTrackingSystem');
-  
-      const mentors = await database.collection('mentor').find({ dept: dept }).toArray();
-      const overviewData = [];
-  
-      for (const mentor of mentors) {
-        const mentorName = mentor.mentorName;
-        const latecomersCount = await database.collection('latecomers_db').countDocuments({ mentorName: mentorName });
-        const disciplineCount = await database.collection('discipline_db').countDocuments({ mentorName: mentorName });
-        const totalDefaulters = latecomersCount + disciplineCount;
-  
-        overviewData.push({ mentorName, totalDefaulters });
-      }
-      console.log(overviewData);
-      res.json(overviewData);
+        const client = await connectToDatabase();
+        const database = client.db('defaulterTrackingSystem');
+        
+        const mentors = await database.collection('mentor').find({ dept: dept }).toArray();
+        const overviewData = [];
+        const currentDate = new Date();
+        const pastDate = new Date();
+        pastDate.setDate(currentDate.getDate() - 7);
+
+        for (const mentor of mentors) {
+            const mentorName = mentor.mentorName;
+            console.log(`Checking defaulters for mentor: ${mentorName}`);
+            
+            const latecomersCount = await database.collection('latecomers_db').countDocuments({
+                mentorName: mentorName,
+                entryDate: { $gte: pastDate.toISOString(), $lt: currentDate.toISOString() }
+            });
+            console.log(`Latecomers count for ${mentorName}: ${latecomersCount}`);
+            
+            const disciplineCount = await database.collection('discipline_db').countDocuments({
+                mentorName: mentorName,
+                entryDate: { $gte: pastDate.toISOString(), $lt: currentDate.toISOString() }
+            });
+            console.log(`Discipline count for ${mentorName}: ${disciplineCount}`);
+            
+            const totalDefaulters = latecomersCount + disciplineCount;
+
+            overviewData.push({ mentorName, totalDefaulters });
+        }
+
+        // Sort overviewData by totalDefaulters in descending order
+        overviewData.sort((a, b) => b.totalDefaulters - a.totalDefaulters);
+
+        console.log(overviewData);
+        res.json(overviewData);
     } catch (error) {
-      console.error('Error fetching mentor overview:', error);
-      res.status(500).json({ message: 'Internal server error' });
+        console.error('Error fetching mentor overview:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-  });
+});
+
+
   
 app.get('/checkEntry', async (req, res) => {
     const { rollNumber, entryDate, defaulterType } = req.query;
