@@ -15,6 +15,8 @@ function Hod() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [defaulterType, setDefaulterType] = useState('');
+  const [mentorName, setMentorName] = useState('');
+  const [mentorNames, setMentorNames] = useState([]);
 
   useEffect(() => {
     if (initialDept) {
@@ -22,11 +24,18 @@ function Hod() {
       localStorage.setItem('dept', initialDept);
     }
   }, [initialDept]);
+
   useEffect(() => {
     if (currentView === 'mentoroverview') {
       fetchMentorOverviewData();
     }
   }, [currentView]);
+
+  useEffect(() => {
+    fetchMentorNames();
+  }, [dept]); // Add dept as a dependency
+
+
   const fetchMentorOverviewData = async () => {
     try {
       console.log('Fetching mentor overview data');
@@ -41,10 +50,28 @@ function Hod() {
       console.error('Error fetching mentor overview data:', error);
     }
   };
-  
+
+  const fetchMentorNames = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/mentors?dept=${dept}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      console.log(data);
+      setMentorNames(data);
+    } catch (error) {
+      console.error('Error fetching mentor names:', error);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    navigate(`/defaulterreport/${defaulterType}/${fromDate}/${toDate}`, { state: { dept } });
+    if (mentorName === 'all') {
+      navigate(`/defaulterreport/${defaulterType}/${fromDate}/${toDate}`, { state: { dept } });
+    } else {
+      navigate(`/mentorReport/${mentorName}/${defaulterType}/${fromDate}/${toDate}`, { state: { dept, mentorName } });
+    }
   };
 
   const handleRepeatedDefaultersSubmit = (e) => {
@@ -91,8 +118,17 @@ function Hod() {
                       <option value="">--Select--</option>
                       <option value="dresscode">Dresscode and Discipline</option>
                       <option value="latecomers">Latecomers</option>
-                      <option value="both">                      Dresscode and Discipline and Latecomers
-                      </option>
+                      <option value="both">Dresscode and Discipline and Latecomers</option>
+                    </select>
+                  </div>
+                  <div className="formGroup">
+                    <label>Mentor Name:</label>
+                    <select value={mentorName} onChange={(e) => setMentorName(e.target.value)} required>
+                      <option value="">--Select Mentor--</option>
+                      <option value="all">All</option>
+                      {mentorNames.map((mentor) => (
+                        <option key={mentor.mentorName} value={mentor.mentorName}>{mentor.mentorName}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="formGroup">
@@ -139,25 +175,26 @@ function Hod() {
               </form>
             </div>
           )}
+
           {currentView === 'mentoroverview' && (
             <div className="mentorOverviewTable">
               <center>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Mentor Name</th>
-                    <th>Total Defaulters</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mentorOverview.map((mentor) => (
-                    <tr key={mentor.mentorName}>
-                      <td>{mentor.mentorName}</td>
-                      <td>{mentor.totalDefaulters}</td>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Mentor Name</th>
+                      <th>Total Defaulters</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {mentorOverview.map((mentor) => (
+                      <tr key={mentor.mentorName}>
+                        <td>{mentor.mentorName}</td>
+                        <td>{mentor.totalDefaulters}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </center>
             </div>
           )}

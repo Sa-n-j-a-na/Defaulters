@@ -29,12 +29,12 @@ const ReportDisplayForMentor = () => {
           const latecomersData = await latecomersResponse.json();
 
           data = [
-            { type: 'dresscode', data: dresscodeData.filter(item => item.mentor === mentorName) },
-            { type: 'latecomers', data: latecomersData.filter(item => item.mentor === mentorName) }
+            { type: 'dresscode', data: dresscodeData.filter(item => item.mentorName === mentorName) },
+            { type: 'latecomers', data: latecomersData.filter(item => item.mentorName === mentorName) }
           ];
         } else {
           const response = await fetch(`http://localhost:5000/${defaulterType}?fromDate=${fromDate}&toDate=${toDate}`);
-          const filteredData = (await response.json()).filter(item => item.mentor === mentorName);
+          const filteredData = (await response.json()).filter(item => item.mentorName === mentorName);
           data = [{ type: defaulterType, data: filteredData }];
         }
 
@@ -129,7 +129,7 @@ const ReportDisplayForMentor = () => {
       data.forEach((item, index) => {
         const row = [
           index + 1, // S.No
-          item.academicYear, item.semester, item.department, item.mentor, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
+          item.academicYear, item.semester, item.department, item.mentorName, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
           ...(type === 'latecomers' ? [item.timeIn] : []),
           ...(type === 'dresscode' ? [item.observation] : []),
         ];
@@ -218,7 +218,7 @@ const ReportDisplayForMentor = () => {
                     <td>{item.academicYear}</td>
                     <td>{item.semester}</td>
                     <td>{item.department}</td>
-                    <td>{item.mentor}</td>
+                    <td>{item.mentorName}</td>
                     <td>{item.year}</td>
                     <td>{item.rollNumber}</td>
                     <td>{item.studentName}</td>
