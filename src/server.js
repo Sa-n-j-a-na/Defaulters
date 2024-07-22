@@ -532,7 +532,7 @@ const fetchRepMen = async (mentorName, startDate, endDate) => {
                 $gte: startDate,
                 $lte: endDate
             },
-            mentor: mentorName
+            mentorName: mentorName
         }).toArray();
 
         const latecomersResults = await latecomersCollection.find({
@@ -540,7 +540,7 @@ const fetchRepMen = async (mentorName, startDate, endDate) => {
                 $gte: startDate,
                 $lte: endDate
             },
-            mentor: mentorName
+            mentorName: mentorName
         }).toArray();
 
         const allDefaulterData = [...disciplineResults, ...latecomersResults];

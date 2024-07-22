@@ -122,7 +122,7 @@ const MentorRepeatedDefaultersReport = () => {
           item.academicYear,
           item.semester,
           item.department,
-          item.mentor,
+          item.mentorName,
           item.year,
           item.rollNumber,
           item.studentName,
@@ -302,7 +302,7 @@ const MentorRepeatedDefaultersReport = () => {
                     <td rowSpan={item.entries.length}>{item.academicYear}</td>
                     <td rowSpan={item.entries.length}>{item.semester}</td>
                     <td rowSpan={item.entries.length}>{item.department}</td>
-                    <td rowSpan={item.entries.length}>{item.mentor}</td>
+                    <td rowSpan={item.entries.length}>{item.mentorName}</td>
                     <td rowSpan={item.entries.length}>{item.year}</td>
                     <td rowSpan={item.entries.length}>{item.rollNumber}</td>
                     <td rowSpan={item.entries.length}>{item.studentName}</td>
