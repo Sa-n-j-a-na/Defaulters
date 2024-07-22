@@ -178,6 +178,22 @@ const ReportDisplay = () => {
     saveAs(blob, `Report_${fromDate}_to_${toDate}.xlsx`);
   };
 
+ const sendEmailWithAttachment = async () => {
+    // Generate Excel file
+    await exportToExcel();
+
+    // Construct the email content
+    const subject = encodeURIComponent('Defaulters Report');
+    const body = encodeURIComponent(`Please find the attached Excel report named "Report_${fromDate}_to_${toDate}.xlsx" which contains the details of defaulters from ${formatDate(fromDate)} to ${formatDate(toDate)}. Please attach this file manually to your email.`);
+ 
+    // Create a mailto link with pre-filled subject and body
+    const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
+
+    // Open Gmail in a new tab and redirect to the mailto link
+    window.open(mailtoLink, '_blank');
+  };
+
+
   return (
     <div className='excelcon'>
       <div className="report-display">
@@ -190,6 +206,7 @@ const ReportDisplay = () => {
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '10px' }}>
             <button onClick={exportToExcel} style={{ marginLeft: 'auto' }}>Print Excel Report</button>
+            <button onClick={sendEmailWithAttachment} style={{ marginLeft: '10px' }}>Send via Email</button>
           </div>
           <h4 style={{ textAlign: 'center', fontWeight: 'bold' }}>Defaulters {new Date(fromDate).toDateString() === new Date(toDate).toDateString() ? `on ${formatDate(fromDate)}` : `from ${formatDate(fromDate)} to ${formatDate(toDate)}`}</h4>
         </div>
@@ -219,7 +236,7 @@ const ReportDisplay = () => {
                     <td>{item.academicYear}</td>
                     <td>{item.semester}</td>
                     <td>{item.department}</td>
-                    <td>{item.mentor}</td>
+                    <td>{item.mentorName}</td>
                     <td>{item.year}</td>
                     <td>{item.rollNumber}</td>
                     <td>{item.studentName}</td>

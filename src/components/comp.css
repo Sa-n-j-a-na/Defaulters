@@ -304,7 +304,55 @@ text-overflow: ellipsis;
   padding: 8px;
   text-align: left;
 }
+/* Styles for the table container */
+.report-displayinhod {
+  margin-top: 20px;
+ 
+}
+.report-displayinhod h4 {
+  text-align: center;
+  margin: 1px 0;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
 
+/* Table styles */
+.report-displayinhod table {
+  width: 80%;
+  border-collapse: collapse;
+  table-layout: auto; /* Ensures columns adjust to content */
+  background-color: rgb(243, 246, 248);
+}
+
+/* Border styles for table, th, and td */
+.report-displayinhod table, 
+.report-displayinhod th, 
+.report-displayinhod td {
+  border: 1px solid black;
+}
+
+/* Padding and text alignment for table header and cells */
+.report-displayinhod th, 
+.report-displayinhod td {
+  padding: 12px; /* Increased padding for better readability */
+  text-align: left;
+}
+
+/* Header row styles */
+.report-displayinhod th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+/* Alternate row background color */
+.report-displayinhod tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Hover effect for rows */
+.report-displayinhod tr:hover {
+  background-color: #f1f1f1;
+}
 
 .excelcon {
   background-color:lavender;
