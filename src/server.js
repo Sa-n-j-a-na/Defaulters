@@ -1,3 +1,4 @@
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
@@ -20,6 +21,21 @@ const connectToDatabase = async () => {
 
 app.use(bodyParser.json());
 app.use(cors());
+
+app.get('/mentors', async (req, res) => {
+    const { dept } = req.query;
+
+    try {
+        const client = await connectToDatabase();
+        const database = client.db('defaulterTrackingSystem');
+        const mentors = await database.collection('mentor').find({ dept }).toArray();
+        res.json(mentors);
+    } catch (error) {
+        console.error('Error fetching mentor names:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 app.post('/login', async (req, res) => {
     const { username, password, role } = req.body;
