@@ -107,7 +107,7 @@ function Pt() {
         rollNumber: formattedRollNumber, // Use the formatted roll number
         studentName: studentData.studentName,
         entryDate: currentDate,
-        mentor: selectedMentor,
+        mentorName: selectedMentor,
       };
   
       if (currentView === 'latecomers') {
