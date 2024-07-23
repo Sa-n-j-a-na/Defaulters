@@ -100,6 +100,12 @@ const HodRepeatedDefaultersReport = () => {
       worksheet.lastRow.eachCell(cell => {
         cell.font = { bold: true };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+          top: { style: 'medium' },
+          left: { style: 'medium' },
+          bottom: { style: 'medium' },
+          right: { style: 'medium' }
+        };
       });
   
       // Group data by rollNumber and studentName
@@ -134,6 +140,12 @@ const HodRepeatedDefaultersReport = () => {
           } else {
             cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others
           }
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
         });
   
         item.entries.slice(1).forEach(entry => {
@@ -154,7 +166,14 @@ const HodRepeatedDefaultersReport = () => {
             } else {
               cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others
             }
+            cell.border = {
+              top: { style: 'thin' },
+              left: { style: 'thin' },
+              bottom: { style: 'thin' },
+              right: { style: 'thin' }
+            };
           });
+          
         });
   
         // Add empty row after each group
@@ -188,46 +207,67 @@ const HodRepeatedDefaultersReport = () => {
     const cumulativeCounts = {};
     reportData.forEach(item => {
       const key = `${item.year}-${item.rollNumber}-${item.studentName}`;
-      if (cumulativeCounts[key]) {
-        cumulativeCounts[key].count++;
-      } else {
+      if (!cumulativeCounts[key]) {
         cumulativeCounts[key] = {
           year: item.year,
           rollNumber: item.rollNumber,
           studentName: item.studentName,
-          count: 1
+          dresscodeCount: 0,
+          latecomerCount: 0,
+          totalCount: 0
         };
       }
+      const isLatecomer = item.timeIn !== undefined && item.timeIn !== '';
+      if (isLatecomer) {
+        cumulativeCounts[key].latecomerCount++;
+      } else {
+        cumulativeCounts[key].dresscodeCount++;
+      }
+      cumulativeCounts[key].totalCount++;
     });
-  
+
     const cumulativeData = Object.values(cumulativeCounts);
 
-    // Add cumulative table headers and data
     worksheet.addRow([]); // Empty row before cumulative data
     worksheet.addRow(["Cumulative Data"]).eachCell(cell => {
       cell.font = { bold: true };
     });
-  
-    // Add headers for cumulative data
+
     const cumulativeHeaders = [
-      'S.No', 'Year', 'Roll Number', 'Student Name', 'Count'
+      'S.No', 'Year', 'Roll Number', 'Student Name',
+      ...(defaulterType === 'latecomers' ? ['Latecomer Count'] : []),
+      ...(defaulterType === 'dresscode' ? ['Dresscode Defaulter Count'] : []),
+      ...(defaulterType === 'both' ? ['Dresscode Defaulter Count', 'Latecomer Count', 'Total Count'] : []),
     ];
     worksheet.addRow(cumulativeHeaders); // Add cumulative headers row
     worksheet.lastRow.eachCell(cell => {
       cell.font = { bold: true };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.border = {
+        top: { style: 'medium' },
+        left: { style: 'medium' },
+        bottom: { style: 'medium' },
+        right: { style: 'medium' }
+      };
     });
-  
-    // Populate cumulative data
+
     cumulativeData.forEach((item, index) => {
       worksheet.addRow([
         index + 1,
         item.year,
         item.rollNumber,
         item.studentName,
-        item.count
+        ...(defaulterType === 'latecomers' ? [item.latecomerCount] : []),
+        ...(defaulterType === 'dresscode' ? [item.dresscodeCount] : []),
+        ...(defaulterType === 'both' ? [item.dresscodeCount, item.latecomerCount, item.totalCount] : []),
       ]).eachCell((cell, colNumber) => {
-        cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align all cells
+        cell.alignment = { vertical: 'middle', horizontal: colNumber === 3 || colNumber === 4 ? 'left' : 'center' }; // Left align roll number and student name in cumulative table
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        };
       });
     });
   

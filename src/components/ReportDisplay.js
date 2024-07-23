@@ -124,13 +124,19 @@ const ReportDisplay = () => {
       worksheet.lastRow.eachCell(cell => {
         cell.font = { bold: true };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+          top: { style: 'medium' },
+          left: { style: 'medium' },
+          bottom: { style: 'medium' },
+          right: { style: 'medium' }
+        };
       });
 
       // Add data rows
       data.forEach((item, index) => {
         const row = [
           index + 1, // S.No
-          item.academicYear, item.semester, item.department, item.mentor, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
+          item.academicYear, item.semester, item.department, item.mentorName, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
           ...(type === 'latecomers' ? [item.timeIn] : []),
           ...(type === 'dresscode' ? [item.observation] : []),
         ];
@@ -140,6 +146,12 @@ const ReportDisplay = () => {
           }  else {
             cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others
           }
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
         });
       });
 
