@@ -119,7 +119,6 @@ const DefaulterReport = () => {
       const headingRow = worksheet.addRow([`${type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'} ${dateRangeText}`]);
       headingRow.eachCell(cell => {
         cell.font = { bold: true };
-        cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
 
       rowIndex++;
@@ -138,22 +137,34 @@ const DefaulterReport = () => {
       worksheet.lastRow.eachCell(cell => {
         cell.font = { bold: true };
         cell.alignment = {horizontal: 'center' };
+        cell.border = {
+          top: { style: 'medium' },
+          left: { style: 'medium' },
+          bottom: { style: 'medium' },
+          right: { style: 'medium' }
+        };
       });
 
       // Add data rows
       data.forEach((item, index) => {
         const row = [
           index + 1, // S.No
-          item.academicYear, item.semester, item.department, item.mentor, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
+          item.academicYear, item.semester, item.department, item.mentorName, item.year, item.rollNumber, item.studentName, formatDate(item.entryDate),
           ...(type === 'latecomers' ? [item.timeIn] : []),
           ...(type === 'dresscode' ? [item.observation] : []),
         ];
         worksheet.addRow(row).eachCell((cell, colNumber) => {
-          if (type === 'dresscode' && [5, 7, 8, 10].includes(colNumber)) {
+          if ((type === 'dresscode' && [5, 7, 8, 10].includes(colNumber))||(type === 'latecomers' && [5, 7, 8].includes(colNumber))) {
             cell.alignment = { vertical: 'middle', horizontal: 'left' }; // Left align for specific columns
           }  else {
             cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others
           }
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
         });
       });
 
@@ -233,7 +244,7 @@ const DefaulterReport = () => {
                     <td>{item.academicYear}</td>
                     <td>{item.semester}</td>
                     <td>{item.department}</td>
-                    <td>{item.mentor}</td>
+                    <td>{item.mentorName}</td>
                     <td>{item.year}</td>
                     <td>{item.rollNumber}</td>
                     <td>{item.studentName}</td>
