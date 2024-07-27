@@ -20,14 +20,14 @@ const ReportDisplayForMentor = () => {
     const fetchData = async () => {
       try {
         let data = [];
-
+  
         if (defaulterType === 'both') {
           const dresscodeResponse = await fetch(`http://localhost:5000/dresscode?fromDate=${fromDate}&toDate=${toDate}`);
           const latecomersResponse = await fetch(`http://localhost:5000/latecomers?fromDate=${fromDate}&toDate=${toDate}`);
           
           const dresscodeData = await dresscodeResponse.json();
           const latecomersData = await latecomersResponse.json();
-
+  
           data = [
             { type: 'dresscode', data: dresscodeData.filter(item => item.mentorName === mentorName) },
             { type: 'latecomers', data: latecomersData.filter(item => item.mentorName === mentorName) }
@@ -37,29 +37,24 @@ const ReportDisplayForMentor = () => {
           const filteredData = (await response.json()).filter(item => item.mentorName === mentorName);
           data = [{ type: defaulterType, data: filteredData }];
         }
-
-        data.forEach(({ data }) => {
-          // Sort each data set by entry date
-          data.sort((a, b) => new Date(a.entryDate) - new Date(b.entryDate));
-
-          // Sort each date's data by department (alphabetically) and year (descending)
-          data.sort((a, b) => {
+  
+        data.forEach(defaulterData => {
+          defaulterData.data.sort((a, b) => {
             const dateComparison = new Date(a.entryDate) - new Date(b.entryDate);
             if (dateComparison !== 0) return dateComparison;
-            if (a.department < b.department) return -1;
-            if (a.department > b.department) return 1;
-            return b.year.localeCompare(a.year); // Assuming year is a string like 'I', 'II', 'III', 'IV'
+            return a.rollNumber.localeCompare(b.rollNumber); // Sort by roll number if dates are the same
           });
         });
-
+  
         setReportData(data);
       } catch (error) {
         console.error('Error fetching report data:', error);
       }
     };
-
+  
     fetchData();
   }, [mentorName, defaulterType, fromDate, toDate]);
+  
 
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
@@ -88,7 +83,9 @@ const ReportDisplayForMentor = () => {
       excelRow.eachCell(cell => {
         cell.font = { bold: true };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        
       });
+      
       worksheet.mergeCells(`A${rowIndex}:J${rowIndex}`); // Merge up to column J
       rowIndex++;
     });
@@ -123,6 +120,12 @@ const ReportDisplayForMentor = () => {
       worksheet.lastRow.eachCell(cell => {
         cell.font = { bold: true };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+          top: { style: 'medium' },
+          left: { style: 'medium' },
+          bottom: { style: 'medium' },
+          right: { style: 'medium' }
+        };
       });
   
       // Add data rows
@@ -139,6 +142,12 @@ const ReportDisplayForMentor = () => {
           } else {
             cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others
           }
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
         });
       });
   
@@ -195,7 +204,7 @@ const ReportDisplayForMentor = () => {
         {reportData.map(({ type, data }) => (
           <div key={type} className="table-container">
             <h5 className="table-heading">{type === 'latecomers' ? 'LATECOMERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS'}</h5>
-            <table className="report-table">
+            <table className="mentor-report-table">
               <thead>
                 <tr>
                   <th>S.No</th>
@@ -212,21 +221,27 @@ const ReportDisplayForMentor = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.map((item, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{item.academicYear}</td>
-                    <td>{item.semester}</td>
-                    <td>{item.department}</td>
-                    <td>{item.mentorName}</td>
-                    <td>{item.year}</td>
-                    <td>{item.rollNumber}</td>
-                    <td>{item.studentName}</td>
-                    <td>{formatDate(item.entryDate)}</td>
-                    {type === 'latecomers' && <td>{item.timeIn}</td>}
-                    {type === 'dresscode' && <td>{item.observation}</td>}
+                {data.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="no-data">No data available</td>
                   </tr>
-                ))}
+                ) : (
+                  data.map((item, index) => (
+                    <tr key={item._id}>
+                      <td>{index + 1}</td>
+                      <td>{item.academicYear}</td>
+                      <td>{item.semester}</td>
+                      <td>{item.department}</td>
+                      <td>{item.mentorName}</td>
+                      <td>{item.year}</td>
+                      <td>{item.rollNumber}</td>
+                      <td>{item.studentName}</td>
+                      <td>{formatDate(item.entryDate)}</td>
+                      {type === 'latecomers' && <td>{item.timeIn}</td>}
+                      {type === 'dresscode' && <td>{item.observation}</td>}
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

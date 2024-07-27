@@ -44,25 +44,22 @@ const MentorRepeatedDefaultersReport = () => {
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Report Data');
-  
+
     const formattedFromDate = formatDate(fromDate);
     const formattedToDate = formatDate(toDate);
     const dateRangeText = new Date(fromDate).toDateString() === new Date(toDate).toDateString()
       ? `Repeated Defaulters on ${formattedFromDate}`
       : `Repeated Defaulters from ${formattedFromDate} to ${formattedToDate}`;
-  
-    // Add college headers for repeated defaulters section
+
     const collegeHeaders = [
       ["Velammal College of Engineering and Technology"],
       ["(Autonomous)"],
       ["Viraganoor, Madurai-625009"],
       ["Department of Physical Education"],
-      ["Print Excel Report"],
       [dateRangeText],
       [], // Empty row for spacing
     ];
-  
-    // Add college headers with merged cells up to column J
+
     let rowIndex = 1;
     collegeHeaders.forEach(row => {
       const excelRow = worksheet.addRow(row);
@@ -73,36 +70,39 @@ const MentorRepeatedDefaultersReport = () => {
       worksheet.mergeCells(`A${rowIndex}:J${rowIndex}`); // Merge up to column J
       rowIndex++;
     });
-  
+
     worksheet.addRow([]); // Empty row for spacing
-  
-    // Function to add headers and data for each defaulter type
+
     const addHeadersAndData = (type, data) => {
-      const headingRow = worksheet.addRow([`${type === 'latecomers' ? 'LATECOMERS' : (type === 'dresscode' ? 'DRESSCODE AND DISCIPLINE DEFAULTERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS AND LATECOMERS')}`]);
+      const headingText = type === 'latecomers' ? 'LATECOMERS' : (type === 'dresscode' ? 'DRESSCODE AND DISCIPLINE DEFAULTERS' : 'DRESSCODE AND DISCIPLINE DEFAULTERS AND LATECOMERS');
+      const headingRow = worksheet.addRow([headingText]);
+      worksheet.mergeCells(`A${headingRow.number}:C${headingRow.number}`); // Merge cells for heading
       headingRow.eachCell(cell => {
         cell.font = { bold: true };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
-  
+
       rowIndex++;
-  
-      // Add empty row after heading
-      worksheet.addRow([]);
-  
-      // Add headers for repeated defaulters
+
       const headers = [
         'S.No', 'Academic Year', 'Semester', 'Department', 'Mentor', 'Year', 'Roll Number', 'Student Name', 'Entry Date',
         ...(type === 'latecomers' ? ['Time In'] : []),
         ...(type === 'dresscode' ? ['Observation'] : []),
         ...(type === 'both' ? ['Observation/Time In'] : []),
       ];
-  
-      worksheet.addRow(headers); // Add headers row
-      worksheet.lastRow.eachCell(cell => {
+
+      const headersRow = worksheet.addRow(headers); // Add headers row
+      headersRow.eachCell(cell => {
         cell.font = { bold: true };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.border = {
+          top: { style: 'medium' },
+          left: { style: 'medium' },
+          bottom: { style: 'medium' },
+          right: { style: 'medium' }
+        };
       });
-  
-      // Group data by rollNumber and studentName
+
       const groupedData = data.reduce((acc, item) => {
         const key = `${item.rollNumber}-${item.studentName}`;
         if (!acc[key]) {
@@ -111,11 +111,9 @@ const MentorRepeatedDefaultersReport = () => {
         acc[key].entries.push({ entryDate: item.entryDate, observation: item.observation, timeIn: item.timeIn });
         return acc;
       }, {});
-  
-      // Filter grouped data to include only entries with more than one occurrence
+
       const filteredData = Object.values(groupedData).filter(item => item.entries.length > 1);
-  
-      // Add filtered data rows
+
       filteredData.forEach((item, index) => {
         worksheet.addRow([
           index + 1,
@@ -129,13 +127,15 @@ const MentorRepeatedDefaultersReport = () => {
           formatDate(item.entries[0].entryDate),
           item.entries[0].timeIn || item.entries[0].observation
         ]).eachCell((cell, colNumber) => {
-          if ([5, 7, 8, 10].includes(colNumber)) {
-            cell.alignment = { vertical: 'middle', horizontal: 'left' }; // Left align for specific columns
-          } else {
-            cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others
-          }
+          cell.alignment = { vertical: 'middle', horizontal: colNumber === 5 || colNumber === 7 || colNumber === 8 || (colNumber === 10 && type === 'dresscode') ? 'left' : 'center' }; // Left align specified columns
+          cell.border = {
+            top: { style: 'thin' },
+            left: { style: 'thin' },
+            bottom: { style: 'thin' },
+            right: { style: 'thin' }
+          };
         });
-  
+
         item.entries.slice(1).forEach(entry => {
           worksheet.addRow([
             '',
@@ -149,19 +149,19 @@ const MentorRepeatedDefaultersReport = () => {
             formatDate(entry.entryDate),
             entry.timeIn || entry.observation
           ]).eachCell((cell, colNumber) => {
-            if ([5, 7, 8, 10].includes(colNumber)) {
-              cell.alignment = { vertical: 'middle', horizontal: 'left' }; // Left align for specific columns
-            } else {
-              cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others
-            }
+            cell.alignment = { vertical: 'middle', horizontal: colNumber === 5 || colNumber === 7 || colNumber === 8 || (colNumber === 10 && type === 'dresscode') ? 'left' : 'center' }; // Left align specified columns
+            cell.border = {
+              top: { style: 'thin' },
+              left: { style: 'thin' },
+              bottom: { style: 'thin' },
+              right: { style: 'thin' }
+            };
           });
         });
-  
-        // Add empty row after each group
-        worksheet.addRow([]);
+
+        worksheet.addRow([]); // Empty row after each group
       });
-  
-      // Auto resize columns based on content
+
       worksheet.columns.forEach(column => {
         let maxLength = 0;
         column.eachCell({ includeEmpty: true }, cell => {
@@ -172,88 +172,86 @@ const MentorRepeatedDefaultersReport = () => {
         });
         column.width = Math.min(maxLength, 20); // Minimum width of 20, increase for observations
       });
-  
-      // Center align the first six lines
+
       for (let i = 1; i <= 6; i++) {
         worksheet.getRow(i).eachCell(cell => {
           cell.alignment = { vertical: 'middle', horizontal: 'center' };
         });
       }
     };
-  
-    // Add repeated defaulters data
+
     addHeadersAndData(defaulterType, reportData);
-  
-    // Calculate cumulative data
+
     const cumulativeCounts = {};
     reportData.forEach(item => {
       const key = `${item.year}-${item.rollNumber}-${item.studentName}`;
-      if (cumulativeCounts[key]) {
-        cumulativeCounts[key].count++;
-      } else {
+      if (!cumulativeCounts[key]) {
         cumulativeCounts[key] = {
           year: item.year,
           rollNumber: item.rollNumber,
           studentName: item.studentName,
-          count: 1
+          dresscodeCount: 0,
+          latecomerCount: 0,
+          totalCount: 0
         };
       }
+      const isLatecomer = item.timeIn !== undefined && item.timeIn !== '';
+      if (isLatecomer) {
+        cumulativeCounts[key].latecomerCount++;
+      } else {
+        cumulativeCounts[key].dresscodeCount++;
+      }
+      cumulativeCounts[key].totalCount++;
     });
-  
+
     const cumulativeData = Object.values(cumulativeCounts);
 
-    // Add cumulative table headers and data
     worksheet.addRow([]); // Empty row before cumulative data
     worksheet.addRow(["Cumulative Data"]).eachCell(cell => {
       cell.font = { bold: true };
     });
-  
-    // Add headers for cumulative data
+
     const cumulativeHeaders = [
-      'S.No', 'Year', 'Roll Number', 'Student Name', 'Count'
+      'S.No', 'Year', 'Roll Number', 'Student Name',
+      ...(defaulterType === 'latecomers' ? ['Latecomer Count'] : []),
+      ...(defaulterType === 'dresscode' ? ['Dresscode Defaulter Count'] : []),
+      ...(defaulterType === 'both' ? ['Dresscode Defaulter Count', 'Latecomer Count', 'Total Count'] : []),
     ];
     worksheet.addRow(cumulativeHeaders); // Add cumulative headers row
     worksheet.lastRow.eachCell(cell => {
       cell.font = { bold: true };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.border = {
+        top: { style: 'medium' },
+        left: { style: 'medium' },
+        bottom: { style: 'medium' },
+        right: { style: 'medium' }
+      };
     });
-  
-    // Populate cumulative data
+
     cumulativeData.forEach((item, index) => {
       worksheet.addRow([
         index + 1,
         item.year,
         item.rollNumber,
         item.studentName,
-        item.count
+        ...(defaulterType === 'latecomers' ? [item.latecomerCount] : []),
+        ...(defaulterType === 'dresscode' ? [item.dresscodeCount] : []),
+        ...(defaulterType === 'both' ? [item.dresscodeCount, item.latecomerCount, item.totalCount] : []),
       ]).eachCell((cell, colNumber) => {
-        cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align all cells
+        cell.alignment = { vertical: 'middle', horizontal: colNumber === 3 || colNumber === 4 ? 'left' : 'center' }; // Left align roll number and student name in cumulative table
+        cell.border = {
+          top: { style: 'thin' },
+          left: { style: 'thin' },
+          bottom: { style: 'thin' },
+          right: { style: 'thin' }
+        };
       });
     });
-  
-    // Auto resize columns based on content
-    worksheet.columns.forEach(column => {
-      let maxLength = 0;
-      column.eachCell({ includeEmpty: true }, cell => {
-        const columnLength = cell.value ? cell.value.toString().length : 0;
-        if (columnLength > maxLength) {
-          maxLength = columnLength;
-        }
-      });
-      column.width = Math.min(maxLength, 20); // Minimum width of 20, increase for observations
-    });
-  
-    // Generate Excel file
-    try {
-      await workbook.xlsx.writeBuffer().then(buffer => {
-        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        saveAs(blob, `RepeatedDefaulters_${mentorName}_${defaulterType}_${formattedFromDate}_to_${formattedToDate}.xlsx`);
-      });
-    } catch (error) {
-      console.error('Error exporting to Excel:', error);
-    }
-  };
 
+    const buf = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buf]), `mentor_report_${mentorName}_${defaulterType}_${formattedFromDate}_to_${formattedToDate}.xlsx`);
+  };
 
   const renderTable = (type, data) => {
     console.log('Rendering table for:', type, 'with data:', data);
