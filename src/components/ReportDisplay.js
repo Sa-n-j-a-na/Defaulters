@@ -109,18 +109,14 @@ const ReportDisplay = () => {
       });
 
       rowIndex++;
-
-      // Add empty row after heading
       worksheet.addRow([]);
-
-      // Add headers
       const headers = [
         'S.No', 'Academic Year', 'Semester', 'Department', 'Mentor', 'Year', 'Roll Number', 'Student Name', 'Entry Date',
         ...(type === 'latecomers' ? ['Time In'] : []),
         ...(type === 'dresscode' ? ['Observation'] : []),
       ];
 
-      worksheet.addRow(headers); // Add headers row
+      worksheet.addRow(headers); 
       worksheet.lastRow.eachCell(cell => {
         cell.font = { bold: true };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
@@ -142,9 +138,9 @@ const ReportDisplay = () => {
         ];
         worksheet.addRow(row).eachCell((cell, colNumber) => {
           if ((type === 'dresscode' && [5, 7, 8, 10].includes(colNumber))||(type === 'latecomers' && [5, 7, 8].includes(colNumber))) {
-            cell.alignment = { vertical: 'middle', horizontal: 'left' }; // Left align for specific columns
+            cell.alignment = { vertical: 'middle', horizontal: 'left' }; 
           }  else {
-            cell.alignment = { vertical: 'middle', horizontal: 'center' }; // Center align for others
+            cell.alignment = { vertical: 'middle', horizontal: 'center' }; 
           }
           cell.border = {
             top: { style: 'thin' },
@@ -154,18 +150,12 @@ const ReportDisplay = () => {
           };
         });
       });
-
-      // Add empty row after data
       worksheet.addRow([]);
       rowIndex++;
     };
-
-    // Add data for each defaulter type in the order: dresscode first, then latecomers
     reportData.forEach(({ type, data }) => {
       addHeadersAndData(type, data);
     });
-
-    // Auto resize columns based on content
     worksheet.columns.forEach(column => {
       let maxLength = 0;
       column.eachCell({ includeEmpty: true }, cell => {
@@ -174,34 +164,23 @@ const ReportDisplay = () => {
           maxLength = columnLength;
         }
       });
-      column.width = Math.min(maxLength + 1, 20); // Minimum width of 25
+      column.width = Math.min(maxLength + 1, 20);
     });
-
-    // Center align the first six lines
     for (let i = 1; i <= 5; i++) {
       worksheet.getRow(i).eachCell(cell => {
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
     }
-
-    // Generate Excel file and save
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     saveAs(blob, `Report_${fromDate}_to_${toDate}.xlsx`);
   };
 
  const sendEmailWithAttachment = async () => {
-    // Generate Excel file
     await exportToExcel();
-
-    // Construct the email content
     const subject = encodeURIComponent('Defaulters Report');
     const body = encodeURIComponent(`Please find the attached Excel report named "Report_${fromDate}_to_${toDate}.xlsx" which contains the details of defaulters from ${formatDate(fromDate)} to ${formatDate(toDate)}. Please attach this file manually to your email.`);
- 
-    // Create a mailto link with pre-filled subject and body
     const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
-
-    // Open Gmail in a new tab and redirect to the mailto link
     window.open(mailtoLink, '_blank');
   };
 
