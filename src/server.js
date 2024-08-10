@@ -72,6 +72,42 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.get('/defaulterYear/:year/:mentorName/:defaulterType/:fromDate/:toDate', async (req, res) => {
+    console.log("Mentor report route triggered");
+    const { year, mentorName, defaulterType, fromDate, toDate } = req.params;
+    console.log("fetching defaulters year wise");
+    try {
+        const client = await connectToDatabase();
+        const database = client.db('defaulterTrackingSystem');
+        let defaulters = [];
+
+        if (defaulterType === 'latecomers' || defaulterType === 'both') {
+            const latecomers = await database.collection('latecomers_db').find({
+                mentorName: mentorName,
+                entryDate: { $gte: new Date(fromDate).toISOString(), $lt: new Date(toDate).toISOString() },
+                ...(year !== 'all' && { year }) // Filter by year if specified
+            }).toArray();
+            defaulters = defaulters.concat(latecomers);
+        }
+
+        if (defaulterType === 'dresscode' || defaulterType === 'both') {
+            const disciplineIssues = await database.collection('discipline_db').find({
+                mentorName: mentorName,
+                entryDate: { $gte: new Date(fromDate).toISOString(), $lt: new Date(toDate).toISOString() },
+                ...(year !== 'all' && { year }) // Filter by year if specified
+            }).toArray();
+            defaulters = defaulters.concat(disciplineIssues);
+        }
+
+        console.log(defaulters);
+        res.status(200).json(defaulters);
+    } catch (error) {
+        console.error('Error fetching mentor report:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
 app.get('/student', async (req, res) => {
     const { rollNumber } = req.query;
     console.log(rollNumber); // This should log the rollNumber passed from the frontend
