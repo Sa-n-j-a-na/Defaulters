@@ -67,11 +67,7 @@ function Hod() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (mentorName === 'all') {
-      navigate(`/defaulterreport/${defaulterType}/${fromDate}/${toDate}`, { state: { dept } });
-    } else {
-      navigate(`/defaulterYear/${year}/${mentorName}/${defaulterType}/${fromDate}/${toDate}`, { state: { dept, mentorName, year } });
-    }
+    navigate(`/defaulterreport/${year}/${defaulterType}/${fromDate}/${toDate}`, { state: { dept, year } });
   };
 
   const handleRepeatedDefaultersSubmit = (e) => {
@@ -136,16 +132,6 @@ function Hod() {
                     </select>
                   </div>
                   
-                  <div className="formGroup">
-                    <label>Mentor Name:</label>
-                    <select value={mentorName} onChange={(e) => setMentorName(e.target.value)} required>
-                      <option value="">--Select Mentor--</option>
-                      <option value="all">All</option>
-                      {mentorNames.map((mentor) => (
-                        <option key={mentor.mentorName} value={mentor.mentorName}>{mentor.mentorName}</option>
-                      ))}
-                    </select>
-                  </div>
                   <div className="formGroup">
                     <label>Defaulters type:</label>
                     <select value={defaulterType} onChange={(e) => setDefaulterType(e.target.value)} required>

@@ -72,10 +72,12 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/defaulterYear/:year/:mentorName/:defaulterType/:fromDate/:toDate', async (req, res) => {
-    console.log("Mentor report route triggered");
-    const { year, mentorName, defaulterType, fromDate, toDate } = req.params;
-    console.log("fetching defaulters year wise");
+app.get('/defaulterreport/:year/:defaulterType/:fromDate/:toDate', async (req, res) => {
+    const { year, defaulterType, fromDate, toDate } = req.params;
+
+    console.log("Year from URL:", year);
+    console.log("Fetching defaulters year wise");
+
     try {
         const client = await connectToDatabase();
         const database = client.db('defaulterTrackingSystem');
@@ -83,18 +85,16 @@ app.get('/defaulterYear/:year/:mentorName/:defaulterType/:fromDate/:toDate', asy
 
         if (defaulterType === 'latecomers' || defaulterType === 'both') {
             const latecomers = await database.collection('latecomers_db').find({
-                mentorName: mentorName,
                 entryDate: { $gte: new Date(fromDate).toISOString(), $lt: new Date(toDate).toISOString() },
-                ...(year !== 'all' && { year }) // Filter by year if specified
+                ...(year !== 'all' && year && { year }) // Filter by year if not "all"
             }).toArray();
             defaulters = defaulters.concat(latecomers);
         }
 
         if (defaulterType === 'dresscode' || defaulterType === 'both') {
             const disciplineIssues = await database.collection('discipline_db').find({
-                mentorName: mentorName,
                 entryDate: { $gte: new Date(fromDate).toISOString(), $lt: new Date(toDate).toISOString() },
-                ...(year !== 'all' && { year }) // Filter by year if specified
+                ...(year !== 'all' && year && { year }) // Filter by year if not "all"
             }).toArray();
             defaulters = defaulters.concat(disciplineIssues);
         }
@@ -102,7 +102,7 @@ app.get('/defaulterYear/:year/:mentorName/:defaulterType/:fromDate/:toDate', asy
         console.log(defaulters);
         res.status(200).json(defaulters);
     } catch (error) {
-        console.error('Error fetching mentor report:', error);
+        console.error('Error fetching defaulters year wise:', error);
         res.status(500).send('Internal Server Error');
     }
 });
@@ -271,7 +271,7 @@ app.post('/dresscode', async (req, res) => {
 });
 
 app.get('/:defaulterType', async (req, res) => {
-    const { defaulterType } = req.params;
+    const { defaulterType} = req.params;
     const { fromDate, toDate } = req.query;
     try {
         const client = await connectToDatabase();
