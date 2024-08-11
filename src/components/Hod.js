@@ -17,6 +17,7 @@ function Hod() {
   const [defaulterType, setDefaulterType] = useState('');
   const [mentorName, setMentorName] = useState('');
   const [mentorNames, setMentorNames] = useState([]);
+  const [year, setYear] = useState(''); 
 
   useEffect(() => {
     if (initialDept) {
@@ -34,7 +35,6 @@ function Hod() {
   useEffect(() => {
     fetchMentorNames();
   }, [dept]); // Add dept as a dependency
-
 
   const fetchMentorOverviewData = async () => {
     try {
@@ -67,16 +67,12 @@ function Hod() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (mentorName === 'all') {
-      navigate(`/defaulterreport/${defaulterType}/${fromDate}/${toDate}`, { state: { dept } });
-    } else {
-      navigate(`/mentorReport/${mentorName}/${defaulterType}/${fromDate}/${toDate}`, { state: { dept, mentorName } });
-    }
+    navigate(`/defaulterreport/${year}/${defaulterType}/${fromDate}/${toDate}`, { state: { dept, year } });
   };
 
   const handleRepeatedDefaultersSubmit = (e) => {
     e.preventDefault();
-    navigate(`/hodRepeatedDefaulters/${dept}/${defaulterType}/${fromDate}/${toDate}`, { state: { dept } });
+    navigate(`/hodRepeatedDefaulters/${dept}/${year}/${defaulterType}/${fromDate}/${toDate}`, { state: { dept } });
   };
 
   const handleViewChange = (view) => {
@@ -87,6 +83,7 @@ function Hod() {
     localStorage.removeItem('dept');
     navigate('/');
   };
+  
   const currentDate = new Date();
   const pastDate = new Date();
   pastDate.setDate(currentDate.getDate() - 7);
@@ -116,6 +113,26 @@ function Hod() {
               <form className="formContainer outlinedForm" onSubmit={handleSubmit}>
                 <div className="borderContainer">
                   <div className="formGroup">
+                    <label htmlFor="fromDate">From Date:</label>
+                    <input type="date" id="fromDate" name="fromDate" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required />
+                  </div>
+                  <div className="formGroup">
+                    <label htmlFor="toDate">To Date:</label>
+                    <input type="date" id="toDate" name="toDate" value={toDate} onChange={(e) => setToDate(e.target.value)} required />
+                  </div>
+                  <div className="formGroup">
+                    <label>Year:</label>
+                    <select value={year} onChange={(e) => setYear(e.target.value)} required>
+                      <option value="">--Select Year--</option>
+                      <option value="all">All</option>
+                      <option value="I">I</option>
+                      <option value="II">II</option>
+                      <option value="III">III</option>
+                      <option value="IV">IV</option>
+                    </select>
+                  </div>
+                  
+                  <div className="formGroup">
                     <label>Defaulters type:</label>
                     <select value={defaulterType} onChange={(e) => setDefaulterType(e.target.value)} required>
                       <option value="">--Select--</option>
@@ -123,24 +140,6 @@ function Hod() {
                       <option value="latecomers">Latecomers</option>
                       <option value="both">Dresscode and Discipline and Latecomers</option>
                     </select>
-                  </div>
-                  <div className="formGroup">
-                    <label>Mentor Name:</label>
-                    <select value={mentorName} onChange={(e) => setMentorName(e.target.value)} required>
-                      <option value="">--Select Mentor--</option>
-                      <option value="all">All</option>
-                      {mentorNames.map((mentor) => (
-                        <option key={mentor.mentorName} value={mentor.mentorName}>{mentor.mentorName}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="formGroup">
-                    <label htmlFor="fromDate">From Date:</label>
-                    <input type="date" id="fromDate" name="fromDate" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required />
-                  </div>
-                  <div className="formGroup">
-                    <label htmlFor="toDate">To Date:</label>
-                    <input type="date" id="toDate" name="toDate" value={toDate} onChange={(e) => setToDate(e.target.value)} required />
                   </div>
                 </div>
                 <div className="formGroup buttonGroup com-login-buttons">
@@ -154,6 +153,17 @@ function Hod() {
             <div className="welcomeform">
               <form className="formContainer outlinedForm" onSubmit={handleRepeatedDefaultersSubmit}>
                 <div className="borderContainer">
+                  <div className="formGroup">
+                    <label>Year:</label>
+                    <select value={year} onChange={(e) => setYear(e.target.value)} required>
+                      <option value="">--Select Year--</option>
+                      <option value="all">All</option>
+                      <option value="I">I</option>
+                      <option value="II">II</option>
+                      <option value="III">III</option>
+                      <option value="IV">IV</option>
+                    </select>
+                  </div>
                   <div className="formGroup">
                     <label>Defaulters type:</label>
                     <select value={defaulterType} onChange={(e) => setDefaulterType(e.target.value)} required>
