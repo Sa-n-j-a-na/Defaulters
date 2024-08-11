@@ -13,7 +13,7 @@ const formatDate = (dateString) => {
 };
 
 const DefaulterReport = () => {
-  const { defaulterType, fromDate, toDate } = useParams();
+  const { defaulterType, fromDate, toDate, year } = useParams();
   const location = useLocation();
   const { dept } = location.state || {};
   const [reportData, setReportData] = useState([]);
@@ -22,46 +22,21 @@ const DefaulterReport = () => {
     const fetchData = async () => {
       try {
         let data = [];
-
-        if (defaulterType === 'both') {
-          const dresscodeResponse = await fetch(`http://localhost:5000/dresscode?fromDate=${fromDate}&toDate=${toDate}&dept=${dept}`);
-          const latecomersResponse = await fetch(`http://localhost:5000/latecomers?fromDate=${fromDate}&toDate=${toDate}&dept=${dept}`);
-          
-          const dresscodeData = await dresscodeResponse.json();
+        if (defaulterType === 'both' || defaulterType === 'latecomers') {
+          const latecomersResponse = await fetch(`http://localhost:5000/defaulterreport/${year}/latecomers/${fromDate}/${toDate}`);
           const latecomersData = await latecomersResponse.json();
+          data.push({ type: 'latecomers', data: latecomersData });
+        }
 
-          // Filter data for each type by department
-          const filteredDresscodeData = dresscodeData.filter(item => item.department === dept);
-          const filteredLatecomersData = latecomersData.filter(item => item.department === dept);
-
-          data = [
-            { type: 'dresscode', data: filteredDresscodeData },
-            { type: 'latecomers', data: filteredLatecomersData }
-          ];
-        } else {
-          const response = await fetch(`http://localhost:5000/${defaulterType}?fromDate=${fromDate}&toDate=${toDate}&dept=${dept}`);
-          const responseData = await response.json();
-
-          // Filter data by department
-          const filteredData = responseData.filter(item => item.department === dept);
-          
-          data = [{ type: defaulterType, data: filteredData }];
+        if (defaulterType === 'both' || defaulterType === 'dresscode') {
+          const dresscodeResponse = await fetch(`http://localhost:5000/defaulterreport/${year}/dresscode/${fromDate}/${toDate}`);
+          const dresscodeData = await dresscodeResponse.json();
+          data.push({ type: 'dresscode', data: dresscodeData });
         }
 
         // Sort each data set by entry date
         data.forEach(({ data }) => {
           data.sort((a, b) => new Date(a.entryDate) - new Date(b.entryDate));
-        });
-
-        // Sort each date's data by department (alphabetically) and year (descending)
-        data.forEach(({ data }) => {
-          data.sort((a, b) => {
-            const dateComparison = new Date(a.entryDate) - new Date(b.entryDate);
-            if (dateComparison !== 0) return dateComparison;
-            if (a.department < b.department) return -1;
-            if (a.department > b.department) return 1;
-            return b.year.localeCompare(a.year); // Assuming year is a string like 'I', 'II', 'III', 'IV'
-          });
         });
 
         setReportData(data);
@@ -71,7 +46,7 @@ const DefaulterReport = () => {
     };
 
     fetchData();
-  }, [defaulterType, fromDate, toDate, dept]);
+  }, [defaulterType, fromDate, toDate, year]);
 
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
@@ -136,7 +111,7 @@ const DefaulterReport = () => {
       worksheet.addRow(headers); // Add headers row
       worksheet.lastRow.eachCell(cell => {
         cell.font = { bold: true };
-        cell.alignment = {horizontal: 'center' };
+        cell.alignment = { horizontal: 'center' };
         cell.border = {
           top: { style: 'medium' },
           left: { style: 'medium' },
@@ -187,7 +162,7 @@ const DefaulterReport = () => {
           maxLength = columnLength;
         }
       });
-      column.width = Math.min(maxLength + 1, 20); // Minimum width of 25
+      column.width = Math.min(maxLength + 1, 20); // Minimum width of 20
     });
 
     // Center align the first six lines

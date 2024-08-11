@@ -16,19 +16,17 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="AppContainer">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/pt" element={<PrivateRoute element={<Pt />} />} />
-            <Route path="/hod" element={<PrivateRoute element={<Hod />} />} />
-            <Route path="/mentor" element={<PrivateRoute element={<Mentor />} />} />
-            <Route path="/report/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<ReportDisplay />} />} />
-            <Route path="/defaulterreport/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<DefaulterReport />} />} />
-            <Route path="/mentorReport/:mentorName/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<ReportDisplayForMentor />} />} />
-            <Route path="/hodRepeatedDefaulters/:dept/:defaulterType/:fromDate/:toDate" element={<HodRepeatedDefaultersReport />} />
-            <Route path="/mentorRepeatedDefaulters/:mentorName/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<MentorRepeatedDefaultersReport />} />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/pt" element={<PrivateRoute element={<Pt />} />} />
+          <Route path="/hod" element={<PrivateRoute element={<Hod />} />} />
+          <Route path="/mentor" element={<PrivateRoute element={<Mentor />} />} />
+          <Route path="/report/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<ReportDisplay />} />} />
+          <Route path="/defaulterreport/:year/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<DefaulterReport />} />} />
+          <Route path="/mentorReport/:mentorName/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<ReportDisplayForMentor />} />} />
+          <Route path="/hodRepeatedDefaulters/:dept/:defaulterType/:fromDate/:toDate" element={<HodRepeatedDefaultersReport/>} />
+          <Route path="/mentorRepeatedDefaulters/:mentorName/:defaulterType/:fromDate/:toDate" element={<PrivateRoute element={<MentorRepeatedDefaultersReport />} />} /> 
+        </Routes>
       </Router>
     </AuthProvider>
   );

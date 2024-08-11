@@ -1,4 +1,3 @@
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
@@ -72,6 +71,42 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+app.get('/defaulterreport/:year/:defaulterType/:fromDate/:toDate', async (req, res) => {
+    const { year, defaulterType, fromDate, toDate } = req.params;
+
+    console.log("Year from URL:", year);
+    console.log("Fetching defaulters year wise");
+
+    try {
+        const client = await connectToDatabase();
+        const database = client.db('defaulterTrackingSystem');
+        let defaulters = [];
+
+        if (defaulterType === 'latecomers' || defaulterType === 'both') {
+            const latecomers = await database.collection('latecomers_db').find({
+                entryDate: { $gte: new Date(fromDate).toISOString(), $lt: new Date(toDate).toISOString() },
+                ...(year !== 'all' && year && { year }) // Filter by year if not "all"
+            }).toArray();
+            defaulters = defaulters.concat(latecomers);
+        }
+
+        if (defaulterType === 'dresscode' || defaulterType === 'both') {
+            const disciplineIssues = await database.collection('discipline_db').find({
+                entryDate: { $gte: new Date(fromDate).toISOString(), $lt: new Date(toDate).toISOString() },
+                ...(year !== 'all' && year && { year }) // Filter by year if not "all"
+            }).toArray();
+            defaulters = defaulters.concat(disciplineIssues);
+        }
+
+        console.log(defaulters);
+        res.status(200).json(defaulters);
+    } catch (error) {
+        console.error('Error fetching defaulters year wise:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
 
 app.get('/student', async (req, res) => {
     const { rollNumber } = req.query;
@@ -236,7 +271,7 @@ app.post('/dresscode', async (req, res) => {
 });
 
 app.get('/:defaulterType', async (req, res) => {
-    const { defaulterType } = req.params;
+    const { defaulterType} = req.params;
     const { fromDate, toDate } = req.query;
     try {
         const client = await connectToDatabase();
