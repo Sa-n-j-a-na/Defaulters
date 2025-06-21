@@ -7,7 +7,7 @@ const path = require("path");
 const app = express();
 const port = 5000;
 
-const uri = "mongodb+srv://defaulter:defaulter@dts.mkkmthk.mongodb.net/";
+const uri = "mongodb+srv://defaulter:defaulter@dts.mkkmthk.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
 
 let mongoClient = null;
