@@ -8,9 +8,9 @@ import Hod from './components/Hod';
 import Mentor from './components/Mentor';
 import ReportDisplay from './components/ReportDisplay';
 import DefaulterReport from './components/DefaulterReport';
-import ReportDisplayForMentor from './components/ReportDisplayForMentor'; 
+import ReportDisplayForMentor from './components/ReportDisplayForMentor';
 import HodRepeatedDefaultersReport from './components/HodRepeatedDefaultersReport';
-import MentorRepeatedDefaultersReport from './components/MentorRepeatedDefaultersReport'; 
+import MentorRepeatedDefaultersReport from './components/MentorRepeatedDefaultersReport';
 
 function App() {
   return (
