@@ -22,18 +22,18 @@ const ReportDisplay = () => {
         let data = [];
 
         if (defaulterType === 'both') {
-          const dresscodeResponse = await fetch(`/dresscode?fromDate=${fromDate}&toDate=${toDate}`);
-          const latecomersResponse = await fetch(`/latecomers?fromDate=${fromDate}&toDate=${toDate}`);
+          const dresscodeResponse = await fetch(`http://localhost:5000/dresscode?fromDate=${fromDate}&toDate=${toDate}`);
+          const latecomersResponse = await fetch(`http://localhost:5000/latecomers?fromDate=${fromDate}&toDate=${toDate}`);
           
           const dresscodeData = await dresscodeResponse.json();
           const latecomersData = await latecomersResponse.json();
- 
+
           data = [
             { type: 'dresscode', data: dresscodeData },
             { type: 'latecomers', data: latecomersData }
           ];
         } else {
-          const response = await fetch(`/${defaulterType}?fromDate=${fromDate}&toDate=${toDate}`);
+          const response = await fetch(`http://localhost:5000/${defaulterType}?fromDate=${fromDate}&toDate=${toDate}`);
           data = [{ type: defaulterType, data: await response.json() }];
         }
 

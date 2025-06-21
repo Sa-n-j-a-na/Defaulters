@@ -35,7 +35,7 @@ function Pt() {
   const fetchStudentData = async () => {
     try {
       const formattedRollNumber = rollNumber.toUpperCase();
-      const response = await axios.get(`/student?rollNumber=${formattedRollNumber}`);
+      const response = await axios.get(`http://localhost:5000/student?rollNumber=${formattedRollNumber}`);
       const data = response.data[0];
       if (data) {
         setStudentData({
@@ -65,7 +65,7 @@ function Pt() {
   const fetchMentorData = async (rollNumber) => {
     try {
       const formattedRollNumber = rollNumber.toUpperCase();
-      const response = await axios.get(`/mentor?rollNumber=${formattedRollNumber}`);
+      const response = await axios.get(`http://localhost:5000/mentor?rollNumber=${formattedRollNumber}`);
       const data = response.data;
       console.log("Mentor Data:", data);
       if (data) {
@@ -84,7 +84,7 @@ function Pt() {
     const currentDate = new Date().toISOString();
     // Check for existing entry
     try {
-      const checkResponse = await axios.get(`/checkEntry`, {
+      const checkResponse = await axios.get(`http://localhost:5000/checkEntry`, {
         params: {
           rollNumber: formattedRollNumber, // Use the formatted roll number
           entryDate: currentDate,
@@ -116,7 +116,7 @@ function Pt() {
         formData.observation = observation;
       }
   
-      const response = await axios.post(`/${currentView}`, formData);
+      const response = await axios.post(`http://localhost:5000/${currentView}`, formData);
       console.log('Submit Response:', response); // Log the response from the submit endpoint
   
       if (response.status === 200) {

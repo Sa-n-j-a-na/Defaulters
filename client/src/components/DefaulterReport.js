@@ -23,13 +23,13 @@ const DefaulterReport = () => {
       try {
         let data = [];
         if (defaulterType === 'both' || defaulterType === 'latecomers') {
-          const latecomersResponse = await fetch(`/defaulterreport/${year}/latecomers/${fromDate}/${toDate}`);
+          const latecomersResponse = await fetch(`http://localhost:5000/defaulterreport/${year}/latecomers/${fromDate}/${toDate}`);
           const latecomersData = await latecomersResponse.json();
           data.push({ type: 'latecomers', data: latecomersData });
         }
 
         if (defaulterType === 'both' || defaulterType === 'dresscode') {
-          const dresscodeResponse = await fetch(`/defaulterreport/${year}/dresscode/${fromDate}/${toDate}`);
+          const dresscodeResponse = await fetch(`http://localhost:5000/defaulterreport/${year}/dresscode/${fromDate}/${toDate}`);
           const dresscodeData = await dresscodeResponse.json();
           data.push({ type: 'dresscode', data: dresscodeData });
         }

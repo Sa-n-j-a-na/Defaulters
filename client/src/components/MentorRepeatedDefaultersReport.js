@@ -22,7 +22,7 @@ const MentorRepeatedDefaultersReport = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/mentorRepeatedDefaulters/${mentorName}/${defaulterType}/${fromDate}/${toDate}`);
+        const response = await fetch(`http://localhost:5000/mentorRepeatedDefaulters/${mentorName}/${defaulterType}/${fromDate}/${toDate}`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }

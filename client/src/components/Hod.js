@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './comp.css';
- 
+
 function Hod() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,7 +39,7 @@ function Hod() {
   const fetchMentorOverviewData = async () => {
     try {
       console.log('Fetching mentor overview data');
-      const response = await fetch(`/hod/mentorOverview?dept=${dept}`);
+      const response = await fetch(`http://localhost:5000/hod/mentorOverview?dept=${dept}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -53,7 +53,7 @@ function Hod() {
 
   const fetchMentorNames = async () => {
     try {
-      const response = await fetch(`/mentors?dept=${dept}`);
+      const response = await fetch(`http://localhost:5000/mentors?dept=${dept}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
