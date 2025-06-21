@@ -10,7 +10,7 @@ import ReportDisplay from './components/ReportDisplay';
 import DefaulterReport from './components/DefaulterReport';
 import ReportDisplayForMentor from './components/ReportDisplayForMentor'; 
 import HodRepeatedDefaultersReport from './components/HodRepeatedDefaultersReport';
-import MentorRepeatedDefaultersReport from './components/MentorRepeatedDefaultersReport'; // Import MentorRepeatedDefaultersReport component
+import MentorRepeatedDefaultersReport from './components/MentorRepeatedDefaultersReport'; 
 
 function App() {
   return (

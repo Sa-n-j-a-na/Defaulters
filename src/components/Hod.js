@@ -72,7 +72,7 @@ function Hod() {
 
   const handleRepeatedDefaultersSubmit = (e) => {
     e.preventDefault();
-    navigate(`/hodRepeatedDefaulters/${dept}/${year}/${defaulterType}/${fromDate}/${toDate}`, { state: { dept } });
+    navigate(`/hodRepeatedDefaulters/${dept}/${defaulterType}/${fromDate}/${toDate}`, { state: { dept } });
   };
 
   const handleViewChange = (view) => {
@@ -153,17 +153,6 @@ function Hod() {
             <div className="welcomeform">
               <form className="formContainer outlinedForm" onSubmit={handleRepeatedDefaultersSubmit}>
                 <div className="borderContainer">
-                  <div className="formGroup">
-                    <label>Year:</label>
-                    <select value={year} onChange={(e) => setYear(e.target.value)} required>
-                      <option value="">--Select Year--</option>
-                      <option value="all">All</option>
-                      <option value="I">I</option>
-                      <option value="II">II</option>
-                      <option value="III">III</option>
-                      <option value="IV">IV</option>
-                    </select>
-                  </div>
                   <div className="formGroup">
                     <label>Defaulters type:</label>
                     <select value={defaulterType} onChange={(e) => setDefaulterType(e.target.value)} required>
