@@ -22,8 +22,8 @@ const ReportDisplayForMentor = () => {
         let data = [];
   
         if (defaulterType === 'both') {
-          const dresscodeResponse = await fetch(`http://localhost:5000/dresscode?fromDate=${fromDate}&toDate=${toDate}`);
-          const latecomersResponse = await fetch(`http://localhost:5000/latecomers?fromDate=${fromDate}&toDate=${toDate}`);
+          const dresscodeResponse = await fetch(`${process.env.REACT_APP_API_URL}/dresscode?fromDate=${fromDate}&toDate=${toDate}`);
+          const latecomersResponse = await fetch(`${process.env.REACT_APP_API_URL}/latecomers?fromDate=${fromDate}&toDate=${toDate}`);
           
           const dresscodeData = await dresscodeResponse.json();
           const latecomersData = await latecomersResponse.json();
@@ -33,7 +33,7 @@ const ReportDisplayForMentor = () => {
             { type: 'latecomers', data: latecomersData.filter(item => item.mentorName === mentorName) }
           ];
         } else {
-          const response = await fetch(`http://localhost:5000/${defaulterType}?fromDate=${fromDate}&toDate=${toDate}`);
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/${defaulterType}?fromDate=${fromDate}&toDate=${toDate}`);
           const filteredData = (await response.json()).filter(item => item.mentorName === mentorName);
           data = [{ type: defaulterType, data: filteredData }];
         }

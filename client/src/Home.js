@@ -22,7 +22,7 @@ function Home() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/login', { username, password, role: selectedRole });
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, { username, password, role: selectedRole });
       if (response && response.data) {
         const { dept , mentorName} = response.data;
         setMessage(response.data.message);

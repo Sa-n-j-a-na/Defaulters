@@ -22,7 +22,7 @@ const HodRepeatedDefaultersReport = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:5000/hodRepeatedDefaulters/${dept}/${defaulterType}/${fromDate}/${toDate}`);
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/hodRepeatedDefaulters/${dept}/${defaulterType}/${fromDate}/${toDate}`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
