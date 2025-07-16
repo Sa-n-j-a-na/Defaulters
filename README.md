@@ -3,7 +3,7 @@
 A web application to track defaulters (latecomers, dress code violations) in an institute, built using the **MERN Stack (MongoDB, Express, React, Node.js)**.
 
 ## 🎥 Demo Video
-[![Watch Demo](https://drive.google.com/file/d/1SQr3mNZCYtCQNaGGndjR3AoNAe80o3YB/view?usp=sharing)]
+https://drive.google.com/file/d/1SQr3mNZCYtCQNaGGndjR3AoNAe80o3YB/view?usp=sharing
 
 ## ✨ Features
 
