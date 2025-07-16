@@ -1,70 +1,45 @@
-# Getting Started with Create React App
+# 🚨 Defaulter Tracking System (MERN Stack)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A web application to track defaulters (latecomers, dress code violations) in an institute, built using the **MERN Stack (MongoDB, Express, React, Node.js)**.
 
-## Available Scripts
+## 🎥 Demo Video
+[![Watch Demo](https://drive.google.com/file/d/1SQr3mNZCYtCQNaGGndjR3AoNAe80o3YB/view?usp=sharing)]
 
-In the project directory, you can run:
+## ✨ Features
 
-### `npm start`
+### 👤 PE (Physical Education) Login
+- Can **enter defaulter data** (Roll No., Type - e.g., latecomer, dress code).
+- **Only roll number** needs to be entered — other student details auto-filled.
+- **Cannot add the same student for the same type on the same day**.
+- Defaulter date is automatically set to **current date**.
+- Can **generate report** by:
+  - **Defaulter Type**
+  - **From Date to To Date**
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 👨‍🏫 Mentor Login
+- Can view their assigned **mentees who are defaulters**.
+- Can **generate reports** similar to PE login.
+- Can also view **repeated defaulters** with **cumulative reports** (how many times a student became a defaulter).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 🎓 HOD Login
+- Can see **students from their department** who were marked as defaulters.
+- Can generate:
+  - **Defaulter reports**
+  - **Repeated defaulter reports**
+- Access to **Mentor Overview**:
+  - Shows mentors and **count of defaulters reported under them in the last 7 days**.
+  - Helps identify mentors with high defaulter activity.
 
-### `npm test`
+## 🛠 Problem Solved
+- ❌ Manual data entry and tracking was error-prone.
+- ❌ Following up with mentors and HODs was difficult.
+- ✅ Now, PE needs to **only enter roll number**, saving time.
+- ✅ Prevents **duplicate entries** for the same day and same type.
+- ✅ Clear reports for **mentors and HODs** to take timely action.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 🧑‍💻 Tech Stack
+- **Frontend**: React.js
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB
